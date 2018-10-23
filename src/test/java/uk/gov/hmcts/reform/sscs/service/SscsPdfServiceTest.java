@@ -88,4 +88,14 @@ public class SscsPdfServiceTest {
         verify(pdfStoreService).store(any(), any());
         verify(ccdService).updateCase(any(), any(), any(), any(), any(), any());
     }
+
+    @Test
+    public void mergeValidPdfAndStoreInDocumentStore() {
+        byte[] pdf = {};
+
+        service.mergeDocIntoCcd("Myfile.pdf", pdf,1L, caseData, IdamTokens.builder().build());
+
+        verify(pdfStoreService).store(any(), any());
+        verify(ccdService).updateCase(any(), any(), any(), any(), any(), any());
+    }
 }
