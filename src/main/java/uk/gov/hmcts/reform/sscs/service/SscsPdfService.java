@@ -89,6 +89,10 @@ public class SscsPdfService {
 
     private void prepareCcdCaseForPdf(Long caseId, SscsCaseData caseData, byte[] pdf, IdamTokens idamTokens) {
         String fileName = emailService.generateUniqueEmailId(caseData.getAppeal().getAppellant()) + ".pdf";
+        mergeDocIntoCCD(fileName, pdf, caseId, caseData, idamTokens);
+    }
+
+    public void mergeDocIntoCCD(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens) {
         List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName);
 
         log.info("Appeal PDF stored in DM for Nino - {} and benefit type {}", caseData.getAppeal().getAppellant().getIdentity().getNino(),
@@ -101,6 +105,7 @@ public class SscsPdfService {
             SscsCaseData caseDataWithAppealPdf = caseData.toBuilder().sscsDocument(allDocuments).build();
             updateCaseInCcd(caseDataWithAppealPdf, caseId, "uploadDocument", idamTokens);
         }
+
     }
 
     private void sendPdfByEmail(Appeal appeal, byte[] pdf) {
