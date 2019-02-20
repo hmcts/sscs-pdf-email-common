@@ -53,7 +53,11 @@ public class SscsPdfService {
     public byte[] generateAndSendPdf(SscsCaseData sscsCaseData, Long caseDetailsId, IdamTokens idamTokens) {
         byte[] pdf = generatePdf(sscsCaseData, caseDetailsId);
 
-        sendPdfByEmail(sscsCaseData.getAppeal(), pdf);
+        log.info("Case {} PDF successfully created for Nino - {} and benefit type {}",
+                caseDetailsId, sscsCaseData.getGeneratedNino(),
+                sscsCaseData.getAppeal().getBenefitType().getCode());
+
+        sendPdfByEmail(sscsCaseData.getAppeal(), pdf, caseDetailsId);
 
         prepareCcdCaseForPdf(caseDetailsId, sscsCaseData, pdf, idamTokens);
 
@@ -95,7 +99,7 @@ public class SscsPdfService {
     public void mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens) {
         List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName);
 
-        log.info("Appeal PDF stored in DM for Nino - {} and benefit type {}", caseData.getAppeal().getAppellant().getIdentity().getNino(),
+        log.info("Case {} PDF stored in DM for Nino - {} and benefit type {}", caseId, caseData.getAppeal().getAppellant().getIdentity().getNino(),
                 caseData.getAppeal().getBenefitType().getCode());
 
         if (caseId == null) {
@@ -107,14 +111,15 @@ public class SscsPdfService {
         }
     }
 
-    private void sendPdfByEmail(Appeal appeal, byte[] pdf) {
+    private void sendPdfByEmail(Appeal appeal, byte[] pdf, Long caseDetailsId) {
         String appellantUniqueId = emailService.generateUniqueEmailId(appeal.getAppellant());
         emailService.sendEmail(submitYourAppealEmailTemplate.generateEmail(
                 appellantUniqueId,
                 newArrayList(pdf(pdf, appellantUniqueId + ".pdf")))
         );
 
-        log.info("PDF email sent successfully for Nino - {} and benefit type {}", appeal.getAppellant().getIdentity().getNino(),
+        log.info("Case {} PDF email sent successfully for Nino - {} and benefit type {}", caseDetailsId,
+                appeal.getAppellant().getIdentity().getNino(),
                 appeal.getBenefitType().getCode());
     }
 
