@@ -79,7 +79,7 @@ public class EvidenceManagementService {
             );
 
             ByteArrayResource resource = (ByteArrayResource) responseEntity.getBody();
-            return resource.getByteArray();
+            return (resource != null) ? resource.getByteArray() : new byte[0];
         } catch (HttpClientErrorException httpClientErrorException) {
             log.error("Doc Store service failed to download document...", httpClientErrorException);
             throw new UnsupportedDocumentTypeException(httpClientErrorException);

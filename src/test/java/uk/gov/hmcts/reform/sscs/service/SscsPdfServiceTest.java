@@ -13,7 +13,6 @@ import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.domain.email.SubmitYourAppealEmailTemplate;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 
@@ -30,20 +29,17 @@ public class SscsPdfServiceTest {
     EmailService emailService;
 
     @Mock
-    PdfStoreService pdfStoreService;
-
-    @Mock
     SubmitYourAppealEmailTemplate submitYourAppealEmailTemplate;
 
     @Mock
-    CcdService ccdService;
+    CcdPdfService ccdPdfService;
 
     SscsCaseData caseData = buildCaseData();
 
     @Before
     public void setup() {
         initMocks(this);
-        service = new SscsPdfService(TEMPLATE_PATH, pdfServiceClient, emailService, pdfStoreService, submitYourAppealEmailTemplate, ccdService);
+        service = new SscsPdfService(TEMPLATE_PATH, pdfServiceClient, emailService, submitYourAppealEmailTemplate, ccdPdfService);
     }
 
     @Test
@@ -55,8 +51,7 @@ public class SscsPdfServiceTest {
 
         verify(pdfServiceClient).generateFromHtml(any(), any());
         verify(emailService).sendEmail(any());
-        verify(pdfStoreService).store(any(), any());
-        verify(ccdService).updateCase(any(), any(), any(), any(), any(), any());
+        verify(ccdPdfService).mergeDocIntoCcd(any(), any(), any(), any(), any());
     }
 
     @Test
@@ -70,8 +65,7 @@ public class SscsPdfServiceTest {
 
         verify(pdfServiceClient).generateFromHtml(any(), any());
         verify(emailService).sendEmail(any());
-        verify(pdfStoreService).store(any(), any());
-        verify(ccdService).updateCase(any(), any(), any(), any(), any(), any());
+        verify(ccdPdfService).mergeDocIntoCcd(any(), any(), any(), any(), any());
     }
 
     @Test
@@ -85,17 +79,6 @@ public class SscsPdfServiceTest {
 
         verify(pdfServiceClient).generateFromHtml(any(), any());
         verify(emailService).sendEmail(any());
-        verify(pdfStoreService).store(any(), any());
-        verify(ccdService).updateCase(any(), any(), any(), any(), any(), any());
-    }
-
-    @Test
-    public void mergeValidPdfAndStoreInDocumentStore() {
-        byte[] pdf = {};
-
-        service.mergeDocIntoCcd("Myfile.pdf", pdf,1L, caseData, IdamTokens.builder().build());
-
-        verify(pdfStoreService).store(any(), any());
-        verify(ccdService).updateCase(any(), any(), any(), any(), any(), any());
+        verify(ccdPdfService).mergeDocIntoCcd(any(), any(), any(), any(), any());
     }
 }

@@ -128,6 +128,27 @@ public class EvidenceManagementServiceTest {
         verify(mockResponseEntity, times(1)).getBody();
     }
 
+    @Test
+    public void downloadDocumentWhenBodyIsEmpty() {
+        ResponseEntity<Resource> mockResponseEntity = mock(ResponseEntity.class);
+        when(mockResponseEntity.getBody()).thenReturn(null);
+
+        Document stubbedDocument = new Document();
+        Document.Link stubbedLink = new Document.Link();
+        stubbedLink.href = "http://localhost:4506/documents/eb8cbfaa-37c3-4644-aa77-b9a2e2c72332";
+        Document.Links stubbedLinks = new Document.Links();
+        stubbedLinks.binary = stubbedLink;
+        stubbedDocument.links = stubbedLinks;
+
+        when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
+        when(evidenceMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
+        when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(mockResponseEntity);
+
+        evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"), SSCS_USER);
+
+        verify(mockResponseEntity, times(1)).getBody();
+    }
+
     @Test(expected = UnsupportedDocumentTypeException.class)
     public void downloadDocumentShoudlThrowExceptionWhenDocumentNotFound() {
         ResponseEntity<Resource> mockResponseEntity = mock(ResponseEntity.class);
