@@ -107,14 +107,20 @@ bintray {
     }
 }
 
+def versions = [
+    reformLogging: '5.0.1'
+]
+
 dependencies {
-    compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: '5.0.1'
+    compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: versions.reformLogging
+    compile group: 'uk.gov.hmcts.reform', name: 'java-logging-httpcomponents', version: versions.reformLogging
     compile group: 'uk.gov.hmcts.reform', name: 'pdf-service-client', version: '5.0.0'
     compile group: 'uk.gov.hmcts.reform', name: 'sscs-common', version: '1.3_RC1_SSCS3936'
     compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '4.0.1'
 
     compile group: 'org.springframework', name: 'spring-context-support', version: '5.1.1.RELEASE'
     compile group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
+    compile group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
 
     compile group: 'com.github.everit-org.json-schema', name: 'org.everit.json.schema', version: '1.9.2'
     compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
@@ -127,4 +133,6 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: 4.12
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.2.7'
     testCompile 'pl.pragmatists:JUnitParams:1.1.1'
+    testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: '2.1'
+
 }

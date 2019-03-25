@@ -23,6 +23,14 @@ public class CcdPdfService {
     private CcdService ccdService;
 
     public void mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens) {
+        updateAndMerge(fileName, pdf, caseId, caseData, idamTokens, "Uploaded document into SSCS");
+    }
+
+    public void mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens, String description) {
+        updateAndMerge(fileName, pdf, caseId, caseData, idamTokens, description);
+    }
+
+    private void updateAndMerge(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens, String description) {
         List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName);
 
         log.info("Case {} PDF stored in DM for Nino - {} and benefit type {}", caseId, caseData.getAppeal().getAppellant().getIdentity().getNino(),
@@ -33,7 +41,7 @@ public class CcdPdfService {
         } else {
             List<SscsDocument> allDocuments = combineEvidenceAndAppealPdf(caseData, pdfDocuments);
             SscsCaseData caseDataWithAppealPdf = caseData.toBuilder().sscsDocument(allDocuments).build();
-            updateCaseInCcd(caseDataWithAppealPdf, caseId, "uploadDocument", idamTokens);
+            updateCaseInCcd(caseDataWithAppealPdf, caseId, "uploadDocument", idamTokens, description);
         }
     }
 
@@ -47,9 +55,9 @@ public class CcdPdfService {
         return allDocuments;
     }
 
-    private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens) {
+    private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens, String description) {
         try {
-            return ccdService.updateCase(caseData, caseId, eventId, "SSCS - appeal updated event", "Updated SSCS", idamTokens);
+            return ccdService.updateCase(caseData, caseId, eventId, "SSCS - upload document event", description, idamTokens);
         } catch (CcdException ccdEx) {
             log.error("Failed to update ccd case but carrying on [" + caseId + "] ["
                     + caseData.getCaseReference() + "] with event [" + eventId + "]", ccdEx);
