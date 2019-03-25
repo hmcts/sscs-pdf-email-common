@@ -19,7 +19,7 @@ version buildNumber
 sourceCompatibility = 1.8
 
 repositories {
-    
+
     mavenLocal()
 
     maven {

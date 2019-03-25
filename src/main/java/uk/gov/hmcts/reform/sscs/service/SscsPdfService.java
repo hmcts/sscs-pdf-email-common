@@ -48,8 +48,8 @@ public class SscsPdfService {
     public byte[] generateAndSendPdf(SscsCaseData sscsCaseData, Long caseDetailsId, IdamTokens idamTokens) {
         byte[] pdf = generatePdf(sscsCaseData, caseDetailsId);
 
-        log.info("Case {} PDF successfully created for Nino - {} and benefit type {}",
-                caseDetailsId, sscsCaseData.getGeneratedNino(),
+        log.info("Case {} PDF successfully created for benefit type {}",
+                caseDetailsId,
                 sscsCaseData.getAppeal().getBenefitType().getCode());
 
         sendPdfByEmail(sscsCaseData.getAppeal(), pdf, caseDetailsId);
@@ -98,8 +98,7 @@ public class SscsPdfService {
                 newArrayList(pdf(pdf, appellantUniqueId + ".pdf")))
         );
 
-        log.info("Case {} PDF email sent successfully for Nino - {} and benefit type {}", caseDetailsId,
-                appeal.getAppellant().getIdentity().getNino(),
+        log.info("Case {} PDF email sent successfully for benefit type {}", caseDetailsId,
                 appeal.getBenefitType().getCode());
     }
 

@@ -33,7 +33,7 @@ public class CcdPdfService {
     private void updateAndMerge(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens, String description) {
         List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName);
 
-        log.info("Case {} PDF stored in DM for Nino - {} and benefit type {}", caseId, caseData.getAppeal().getAppellant().getIdentity().getNino(),
+        log.info("Case {} PDF stored in DM for benefit type {}", caseId,
                 caseData.getAppeal().getBenefitType().getCode());
 
         if (caseId == null) {
