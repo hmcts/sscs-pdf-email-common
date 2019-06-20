@@ -61,13 +61,13 @@ public class EvidenceManagementServiceTest {
         UploadResponse expectedUploadResponse = mock(UploadResponse.class);
 
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(documentUploadClientApi.upload(any(), eq(SERVICE_AUTHORIZATION), anyString(), eq(files)))
+        when(documentUploadClientApi.upload(any(), eq(SERVICE_AUTHORIZATION), any(), any(), any(), eq(files)))
                 .thenReturn(expectedUploadResponse);
 
         UploadResponse actualUploadedResponse = evidenceManagementService.upload(files, SSCS_USER);
 
         verify(documentUploadClientApi, times(1))
-                .upload(any(), eq(SERVICE_AUTHORIZATION), anyString(), eq(files));
+                .upload(any(), eq(SERVICE_AUTHORIZATION), any(), any(), any(), eq(files));
 
         assertEquals(actualUploadedResponse, expectedUploadResponse);
     }
@@ -77,7 +77,7 @@ public class EvidenceManagementServiceTest {
         List<MultipartFile> files = mockMultipartFiles();
 
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(documentUploadClientApi.upload(any(), eq(SERVICE_AUTHORIZATION), anyString(), eq(files)))
+        when(documentUploadClientApi.upload(any(), eq(SERVICE_AUTHORIZATION), any(), any(), any(), eq(files)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
 
         evidenceManagementService.upload(files, SSCS_USER);

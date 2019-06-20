@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.service;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.document.DocumentUploadClientApi;
+import uk.gov.hmcts.reform.document.domain.Classification;
 import uk.gov.hmcts.reform.document.domain.Document;
 import uk.gov.hmcts.reform.document.domain.UploadResponse;
 import uk.gov.hmcts.reform.sscs.document.EvidenceDownloadClientApi;
@@ -48,7 +50,8 @@ public class EvidenceManagementService {
 
         try {
             return documentUploadClientApi
-                .upload(S2S_TOKEN, serviceAuthorization, userId, files);
+                .upload(S2S_TOKEN, serviceAuthorization, userId, Arrays.asList("caseworker", "citizen"),
+                    Classification.RESTRICTED, files);
         } catch (HttpClientErrorException httpClientErrorException) {
             log.error("Doc Store service failed to upload documents...", httpClientErrorException);
             if (null != files) {
@@ -66,15 +69,15 @@ public class EvidenceManagementService {
                 S2S_TOKEN,
                 serviceAuthorization,
                 userId,
-                    "caseworker",
+                "caseworker",
                 documentSelf.getPath().replaceFirst("/", "")
             );
 
-            ResponseEntity<Resource> responseEntity =  evidenceDownloadClientApi.downloadBinary(
+            ResponseEntity<Resource> responseEntity = evidenceDownloadClientApi.downloadBinary(
                 S2S_TOKEN,
                 serviceAuthorization,
                 userId,
-                    "caseworker",
+                "caseworker",
                 URI.create(documentMetadata.links.binary.href).getPath().replaceFirst("/", "")
             );
 
