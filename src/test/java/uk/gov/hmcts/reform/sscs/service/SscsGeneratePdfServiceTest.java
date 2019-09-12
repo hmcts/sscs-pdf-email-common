@@ -27,8 +27,7 @@ public class SscsGeneratePdfServiceTest {
 
     private static final List<String> getTemplatePaths() {
         return Arrays.asList(
-            "/templates/strike_out_letter_template.html",
-            "/templates/direction_notice_letter_template.html"
+            "/templates/strike_out_letter_template.html"
         );
     }
 
