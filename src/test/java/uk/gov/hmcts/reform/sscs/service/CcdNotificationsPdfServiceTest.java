@@ -42,6 +42,7 @@ public class CcdNotificationsPdfServiceTest {
     public void setup() {
         initMocks(this);
     }
+
     @Test
     public void mergeCorrespondenceIntoCcd() {
 
