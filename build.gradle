@@ -119,7 +119,7 @@ dependencies {
     compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: versions.reformLogging
     compile group: 'uk.gov.hmcts.reform', name: 'java-logging-httpcomponents', version: versions.reformLogging
     compile group: 'uk.gov.hmcts.reform', name: 'pdf-service-client', version: '7.0.0'
-    compile group: 'uk.gov.hmcts.reform', name: 'sscs-common', version: '3.0.74'
+    compile group: 'uk.gov.hmcts.reform', name: 'sscs-common', version: '3.0.75'
     compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '5.0.0'
 
     compile group: 'org.springframework', name: 'spring-context-support', version: '5.1.8.RELEASE'
