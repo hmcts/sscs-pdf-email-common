@@ -131,7 +131,7 @@ dependencies {
     compile group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.1'
 
     compile group: 'com.github.sps.junidecode', name: 'junidecode', version: '0.3'
-    compile group: 'org.apache.tika', name: 'tika-core', version: '1.23'
+    compile group: 'org.apache.tika', name: 'tika-core', version: '1.24'
     compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
     compile group: 'org.apache.pdfbox', name: 'xmpbox', version: '2.0.18'
     compile group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.18'
