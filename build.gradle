@@ -122,7 +122,7 @@ dependencies {
     compile group: 'uk.gov.hmcts.reform', name: 'sscs-common', version: '3.1.19'
     compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '6.0.0'
 
-    compile group: 'org.springframework', name: 'spring-context-support', version: '5.2.3.RELEASE'
+    compile group: 'org.springframework', name: 'spring-context-support', version: '5.2.5.RELEASE'
     compile group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
     compile group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
 
