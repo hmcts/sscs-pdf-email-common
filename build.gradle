@@ -132,7 +132,7 @@ dependencies {
 
     compile group: 'com.github.sps.junidecode', name: 'junidecode', version: '0.3'
     compile group: 'org.apache.tika', name: 'tika-core', version: '1.24'
-    compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
+    compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.11'
     compile group: 'org.apache.pdfbox', name: 'xmpbox', version: '2.0.19'
     compile group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.18'
     compile group: 'pl.touk', name: 'throwing-function', version: '1.3'
