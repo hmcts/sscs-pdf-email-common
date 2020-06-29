@@ -119,7 +119,7 @@ dependencies {
     compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: versions.reformLogging
     compile group: 'uk.gov.hmcts.reform', name: 'java-logging-httpcomponents', version: versions.reformLogging
     compile group: 'uk.gov.hmcts.reform', name: 'pdf-service-client', version: '7.0.0'
-    compile group: 'uk.gov.hmcts.reform', name: 'sscs-common', version: '3.3.3'
+    compile group: 'uk.gov.hmcts.reform', name: 'sscs-common', version: '3.3.10'
     compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '7.0.0'
 
     compile group: 'org.springframework', name: 'spring-context-support', version: '5.2.7.RELEASE'
@@ -135,7 +135,7 @@ dependencies {
     compile group: 'org.apache.tika', name: 'tika-parsers', version: '1.24.1'
     compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.11'
     compile group: 'org.apache.pdfbox', name: 'xmpbox', version: '2.0.20'
-    compile group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.19'
+    compile group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.20'
     compile group: 'pl.touk', name: 'throwing-function', version: '1.3'
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.7.2'
 
