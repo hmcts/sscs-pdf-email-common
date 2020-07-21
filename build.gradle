@@ -11,7 +11,7 @@ plugins {
 }
 
 jacoco {
-    toolVersion = "0.8.2"
+    toolVersion = "0.8.5"
 }
 
 def buildNumber = System.getenv("RELEASE_VERSION")?.replace("refs/tags/", "") ?: "DEV-SNAPSHOT"
@@ -20,7 +20,8 @@ group 'uk.gov.hmcts.reform'
 // Do not change this version number
 version buildNumber
 
-sourceCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 repositories {
 
@@ -52,7 +53,7 @@ checkstyle {
 }
 
 pmd {
-    toolVersion = "6.5.0"
+    toolVersion = "6.19.0"
     ignoreFailures = true
     sourceSets = [sourceSets.main, sourceSets.test]
     reportsDir = file("$project.buildDir/reports/pmd")
