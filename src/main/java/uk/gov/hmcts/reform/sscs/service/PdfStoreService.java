@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.document.domain.UploadResponse;
 import uk.gov.hmcts.reform.sscs.ccd.domain.DocumentLink;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocument;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocumentDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocumentTranslationStatus;
 import uk.gov.hmcts.reform.sscs.domain.pdf.ByteArrayMultipartFile;
 
 @Service
@@ -28,8 +29,12 @@ public class PdfStoreService {
     }
 
     public List<SscsDocument> store(byte[] content, String fileName, String documentType) {
+        return this.store(content,fileName,documentType,null);
+    }
+
+    public List<SscsDocument> store(byte[] content, String fileName, String documentType, SscsDocumentTranslationStatus documentTranslationStatus) {
         ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(content).name(fileName)
-            .contentType(APPLICATION_PDF).build();
+                .contentType(APPLICATION_PDF).build();
         try {
             UploadResponse upload = evidenceManagementService.upload(singletonList(file), "sscs");
             String location = upload.getEmbedded().getDocuments().get(0).links.self.href;
@@ -40,6 +45,7 @@ public class PdfStoreService {
                     .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
                     .documentLink(documentLink)
                     .documentType(documentType)
+                    .documentTranslationStatus(documentTranslationStatus)
                     .build();
             SscsDocument pdfDocument = SscsDocument.builder().value(sscsDocumentDetails).build();
 

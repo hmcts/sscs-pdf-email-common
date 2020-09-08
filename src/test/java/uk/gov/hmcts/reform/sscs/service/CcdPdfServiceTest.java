@@ -67,7 +67,7 @@ public class CcdPdfServiceTest {
                 .build())
             .build());
 
-        when(pdfStoreService.store(any(), any(), eq("dl6"))).thenReturn(sscsDocuments);
+        when(pdfStoreService.store(any(), any(), eq("dl6"), eq(null))).thenReturn(sscsDocuments);
         when(ccdService.updateCase(any(), any(), any(), any(), any(), any()))
             .thenReturn(SscsCaseDetails.builder().data(caseData).build());
 
@@ -75,7 +75,7 @@ public class CcdPdfServiceTest {
         service.mergeDocIntoCcd("Myfile.pdf", pdf, 1L, caseData, IdamTokens.builder().build(),
             "dl6");
 
-        verify(pdfStoreService).store(any(), any(), eq("dl6"));
+        verify(pdfStoreService).store(any(), any(), eq("dl6"), eq(null));
         verify(ccdService).updateCase(any(), any(), any(), eq("SSCS - upload document event"),
             eq("Uploaded document into SSCS"), any());
         assertEquals("Test.jpg", caseData.getSscsDocument().get(0).getValue().getDocumentFileName());
@@ -90,7 +90,7 @@ public class CcdPdfServiceTest {
         List<ScannedDocument> existingScannedDocuments,
         int expectedNumberOfScannedDocs) {
 
-        when(pdfStoreService.store(any(), any(), anyString())).thenReturn(newStoredSscsDocuments);
+        when(pdfStoreService.store(any(), any(), anyString(), any())).thenReturn(newStoredSscsDocuments);
         when(ccdService.updateCase(any(), any(), any(), any(), any(), any()))
             .thenReturn(SscsCaseDetails.builder().data(caseData).build());
 
@@ -101,7 +101,7 @@ public class CcdPdfServiceTest {
             "Other evidence");
 
         verify(pdfStoreService, times(1)).store(any(), eq(fileName),
-            eq("Other evidence"));
+            eq("Other evidence"), eq(null));
 
         ArgumentCaptor<SscsCaseData> caseDataCaptor = ArgumentCaptor.forClass(SscsCaseData.class);
         verify(ccdService, times(1))
@@ -198,7 +198,7 @@ public class CcdPdfServiceTest {
 
         service.mergeDocIntoCcd("Myfile.pdf", pdf, 1L, caseData, IdamTokens.builder().build(), "My description", "dl6");
 
-        verify(pdfStoreService).store(any(), any(), eq("dl6"));
+        verify(pdfStoreService).store(any(), any(), eq("dl6"), eq(null));
         verify(ccdService).updateCase(any(), any(), any(), eq("SSCS - upload document event"), eq("My description"), any());
     }
 }

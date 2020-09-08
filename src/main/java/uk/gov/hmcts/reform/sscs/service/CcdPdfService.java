@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocument;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocumentDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocumentTranslationStatus;
 import uk.gov.hmcts.reform.sscs.ccd.exception.CcdException;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
@@ -28,6 +29,7 @@ public class CcdPdfService {
 
     private static final String APPELLANT_STATEMENT = "Appellant statement ";
     private static final String REPRESENTATIVE_STATEMENT = "Representative statement ";
+    public static final String YES = "Yes";
 
     @Autowired
     private PdfStoreService pdfStoreService;
@@ -39,13 +41,13 @@ public class CcdPdfService {
     public SscsCaseData mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData,
                                         IdamTokens idamTokens) {
         return updateAndMerge(fileName, pdf, caseId, caseData, idamTokens, "Uploaded document into SSCS",
-            null);
+                null);
     }
 
     public SscsCaseData mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData,
                                         IdamTokens idamTokens, String documentType) {
         return updateAndMerge(fileName, pdf, caseId, caseData, idamTokens, "Uploaded document into SSCS",
-            documentType);
+                documentType);
     }
 
     public SscsCaseData mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData,
@@ -60,7 +62,11 @@ public class CcdPdfService {
     }
 
     public SscsCaseData updateDoc(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, String documentType) {
-        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName, documentType);
+        return this.updateDoc(fileName, pdf, caseId, caseData, documentType, null);
+    }
+
+    public SscsCaseData updateDoc(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, String documentType, SscsDocumentTranslationStatus documentTranslationStatus) {
+        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName, documentType, documentTranslationStatus);
 
         if (!pdfDocuments.isEmpty()) {
             log.info("Case {} PDF stored in DM for benefit type {}", caseId,
@@ -72,16 +78,19 @@ public class CcdPdfService {
             return caseData;
         }
         updateCaseDataWithNewDoc(fileName, caseData, pdfDocuments);
+        if (documentTranslationStatus != null && documentTranslationStatus.equals(SscsDocumentTranslationStatus.TRANSLATION_REQUIRED)) {
+            caseData.setTranslationWorkOutstanding(YES);
+        }
         return caseData;
     }
 
     private void updateCaseDataWithNewDoc(String fileName, SscsCaseData caseData, List<SscsDocument> pdfDocuments) {
         if (fileName.startsWith(APPELLANT_STATEMENT) || fileName.startsWith(REPRESENTATIVE_STATEMENT)) {
             caseData.setScannedDocuments(ListUtils.union(emptyIfNull(caseData.getScannedDocuments()),
-                buildScannedDocListFromSscsDoc(pdfDocuments)));
+                    buildScannedDocListFromSscsDoc(pdfDocuments)));
         } else {
             caseData.setSscsDocument(ListUtils.union(emptyIfNull(caseData.getSscsDocument()),
-                emptyIfNull(pdfDocuments)));
+                    emptyIfNull(pdfDocuments)));
         }
     }
 
@@ -99,13 +108,13 @@ public class CcdPdfService {
         }
 
         ScannedDocument scannedDoc = ScannedDocument.builder()
-            .value(ScannedDocumentDetails.builder()
-                .fileName(pdfDocDetails.getDocumentFileName())
-                .url(pdfDocDetails.getDocumentLink())
-                .scannedDate(dateAdded)
-                .type("other")
-                .build())
-            .build();
+                .value(ScannedDocumentDetails.builder()
+                        .fileName(pdfDocDetails.getDocumentFileName())
+                        .url(pdfDocDetails.getDocumentLink())
+                        .scannedDate(dateAdded)
+                        .type("other")
+                        .build())
+                .build();
         return Collections.singletonList(scannedDoc);
     }
 
@@ -113,10 +122,10 @@ public class CcdPdfService {
                                             String description) {
         try {
             return ccdService.updateCase(caseData, caseId, eventId, "SSCS - upload document event",
-                description, idamTokens);
+                    description, idamTokens);
         } catch (CcdException ccdEx) {
             log.error("Failed to update ccd case but carrying on [" + caseId + "] ["
-                + caseData.getCaseReference() + "] with event [" + eventId + "]", ccdEx);
+                    + caseData.getCaseReference() + "] with event [" + eventId + "]", ccdEx);
             return SscsCaseDetails.builder().build();
         }
     }

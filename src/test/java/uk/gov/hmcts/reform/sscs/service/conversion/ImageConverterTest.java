@@ -28,7 +28,6 @@ public class ImageConverterTest {
 
     @Test
     @Parameters({"flying-pig.jpg"})
-    // @Parameters({"flying-pig.jpg", "flying-pig.tiff"})
     public void convertImageWithALargerHeightThanWidthToPortraitPdf(String filename) throws IOException {
         File input = new File(ClassLoader.getSystemResource(filename).getPath());
         File output = converter.convert(input);
