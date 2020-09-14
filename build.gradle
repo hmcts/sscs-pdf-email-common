@@ -141,7 +141,7 @@ dependencies {
     compile group: 'org.apache.pdfbox', name: 'xmpbox', version: '2.0.21'
     compile group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.21'
     compile group: 'pl.touk', name: 'throwing-function', version: '1.3'
-    compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.8.1'
+    compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.0'
 
     compileOnly 'org.projectlombok:lombok:1.18.12'
     annotationProcessor "org.projectlombok:lombok:1.18.12"
