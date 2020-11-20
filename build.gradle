@@ -26,6 +26,7 @@ targetCompatibility = 11
 repositories {
 
     mavenLocal()
+    mavenCentral()
 
     maven {
         url "https://dl.bintray.com/hmcts/hmcts-maven"
@@ -36,7 +37,6 @@ repositories {
     }
 
     jcenter()
-    mavenCentral()
 
     // jitpack should be last resort
     // see: https://github.com/jitpack/jitpack.io/issues/1939
