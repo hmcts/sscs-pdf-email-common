@@ -121,7 +121,7 @@ dependencies {
     compile group: 'uk.gov.hmcts.reform', name: 'java-logging-httpcomponents', version: versions.reformLogging
     compile group: 'uk.gov.hmcts.reform', name: 'pdf-service-client', version: '7.0.0'
 
-    compile group: 'uk.gov.hmcts.reform', name: 'sscs-common', version: '4.2.27'
+    compile group: 'uk.gov.hmcts.reform', name: 'sscs-common', version: '4.2.29'
 
     compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '7.0.0'
 
