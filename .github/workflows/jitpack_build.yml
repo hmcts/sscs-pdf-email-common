@@ -21,12 +21,14 @@ jobs:
         touch ${PACKAGES_FILE}
         # Try the URL 6 times before failing
         count=1
-        until [[ $count -gt 6 ]] || [[ $(cat c${PACKAGES_FILE} | wc -l | xargs ) -gt 1 ]] ; do
+        until [[ $count -gt 6 ]] || grep -q build.log ${PACKAGES_FILE} ; do
           echo "Attempt ${count}/6"
           STATUS=$(curl -s -o packages.txt -w "%{http_code}" --max-time 900 ${PACKAGES_URL})
           
           let count+=1
-          sleep 30
+          if [[ "${STATUS}" -gt 399 ]]; then
+            sleep 30
+          fi
         done
         
         echo "::group::Files Available"
