@@ -119,7 +119,7 @@ def versions = [
 dependencies {
     compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: versions.reformLogging
     compile group: 'uk.gov.hmcts.reform', name: 'java-logging-httpcomponents', version: versions.reformLogging
-    compile group: 'uk.gov.hmcts.reform', name: 'pdf-service-client', version: '7.0.0'
+    compile group: 'com.github.hmcts', name: 'cmc-pdf-service-client', version: '7.0.0'
 
     implementation 'com.github.hmcts:sscs-common:4.3.6'
 
