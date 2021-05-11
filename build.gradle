@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'java-library'
     id 'maven-publish'
-    id 'com.jfrog.bintray' version '1.8.5'
     id 'checkstyle'
     id 'pmd'
     id 'jacoco'
@@ -27,14 +26,12 @@ repositories {
 
     mavenLocal()
     mavenCentral()
-
+    jcenter()
     maven { url 'https://jitpack.io' }
 
     maven {
         url 'https://repo.spring.io/libs-milestone'
     }
-
-    jcenter()
 }
 
 // region static code analysis
@@ -85,23 +82,6 @@ publishing {
             groupId project.group
             artifactId 'sscs-pdf-email-common'
             version project.version
-        }
-    }
-}
-
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    publications = ['Main']
-    publish = true
-    pkg {
-        repo = 'hmcts-maven'
-        name = 'sscs-pdf-email-common'
-        userOrg = 'hmcts'
-        licenses = ['MIT']
-        vcsUrl = 'https://github.com/hmcts/sscs-pdf-email-common'
-        version {
-            name = project.version
         }
     }
 }
