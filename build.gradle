@@ -107,12 +107,11 @@ bintray {
 }
 
 def versions = [
-    reformLogging: '5.0.1'
+    reformLogging: '5.1.7'
 ]
 
 dependencies {
-    compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: versions.reformLogging
-    compile group: 'uk.gov.hmcts.reform', name: 'java-logging-httpcomponents', version: versions.reformLogging
+    compile group: 'com.github.hmcts', name: 'java-logging', version: versions.reformLogging
     compile group: 'com.github.hmcts', name: 'cmc-pdf-service-client', version: '7.0.0'
 
     implementation 'com.github.hmcts:sscs-common:4.3.11'
