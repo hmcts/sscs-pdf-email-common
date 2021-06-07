@@ -94,7 +94,7 @@ dependencies {
     compile group: 'com.github.hmcts', name: 'java-logging', version: versions.reformLogging
     compile group: 'com.github.hmcts', name: 'cmc-pdf-service-client', version: '7.0.0'
 
-    implementation 'com.github.hmcts:sscs-common:4.3.27'
+    implementation 'com.github.hmcts:sscs-common:4.3.28'
 
     compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '7.0.0'
 
