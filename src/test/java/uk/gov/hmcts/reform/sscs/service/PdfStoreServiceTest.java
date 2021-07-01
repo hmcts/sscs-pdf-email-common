@@ -26,10 +26,17 @@ public class PdfStoreServiceTest {
     public static final String SSCS_USER = "sscs";
 
     private final EvidenceManagementService evidenceManagementService;
+    private final EvidenceManagementSecureDocStoreService evidenceManagementSecureDocStoreService;
+    private final PdfStoreService pdfStoreService;
+    private final PdfStoreService pdfStoreSecureDocStore;
     private final List<MultipartFile> files;
 
     public PdfStoreServiceTest() {
         evidenceManagementService = mock(EvidenceManagementService.class);
+        evidenceManagementSecureDocStoreService = mock(EvidenceManagementSecureDocStoreService.class);
+        pdfStoreService = new PdfStoreService(evidenceManagementService, evidenceManagementSecureDocStoreService, false);
+        pdfStoreSecureDocStore = new PdfStoreService(evidenceManagementService, evidenceManagementSecureDocStoreService, true);
+
         files = singletonList(ByteArrayMultipartFile.builder().content(content).name(filename).contentType(APPLICATION_PDF).build());
     }
 
@@ -38,7 +45,7 @@ public class PdfStoreServiceTest {
         UploadResponse uploadResponse = createUploadResponse();
         when(evidenceManagementService.upload(files, SSCS_USER)).thenReturn(uploadResponse);
 
-        List<SscsDocument> documents = new PdfStoreService(evidenceManagementService).store(content, filename, "appellantEvidence");
+        List<SscsDocument> documents = pdfStoreService.store(content, filename, "appellantEvidence");
 
         assertThat(documents.size(), is(1));
         SscsDocumentDetails value = documents.get(0).getValue();
@@ -49,9 +56,37 @@ public class PdfStoreServiceTest {
     @Test
     public void cannotConnectToDocumentStore() {
         when(evidenceManagementService.upload(files, SSCS_USER)).thenThrow(new RestClientException("Cannot connect"));
-        List<SscsDocument> documents = new PdfStoreService(evidenceManagementService).store(content, filename, "appellantEvidence");
+        List<SscsDocument> documents = pdfStoreService.store(content, filename, "appellantEvidence");
 
         assertThat(documents.size(), is(0));
+    }
+
+    @Test
+    public void uploadsPdfAndExtractsLinkForSecureDocStore() {
+        uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse uploadResponse = createUploadResponseSecureDocStore();
+        when(evidenceManagementSecureDocStoreService.upload(files)).thenReturn(uploadResponse);
+
+        List<SscsDocument> documents = pdfStoreSecureDocStore.store(content, filename, "appellantEvidence");
+
+        assertThat(documents.size(), is(1));
+        SscsDocumentDetails value = documents.get(0).getValue();
+        assertThat(value.getDocumentFileName(), is(filename));
+        assertThat(value.getDocumentLink().getDocumentUrl(), is(expectedHref));
+    }
+
+    private uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse createUploadResponseSecureDocStore() {
+        uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse response = mock(uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse.class);
+        uk.gov.hmcts.reform.ccd.document.am.model.Document document = createDocumentSecureDocStore();
+        when(response.getDocuments()).thenReturn(Collections.singletonList(document));
+        return response;
+    }
+
+    private uk.gov.hmcts.reform.ccd.document.am.model.Document createDocumentSecureDocStore() {
+        uk.gov.hmcts.reform.ccd.document.am.model.Document.Links links = new uk.gov.hmcts.reform.ccd.document.am.model.Document.Links();
+        uk.gov.hmcts.reform.ccd.document.am.model.Document.Link link = new uk.gov.hmcts.reform.ccd.document.am.model.Document.Link();
+        link.href = expectedHref;
+        links.self = link;
+        return uk.gov.hmcts.reform.ccd.document.am.model.Document.builder().links(links).build();
     }
 
     private UploadResponse createUploadResponse() {
