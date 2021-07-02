@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.sscs.document.EvidenceDownloadClientApi;
 import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
+import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 
 @Service
 @Slf4j
@@ -41,13 +42,13 @@ public class EvidenceManagementSecureDocStoreService {
         this.evidenceDownloadClientApi = evidenceDownloadClientApi;
     }
 
-    public UploadResponse upload(List<MultipartFile> files) {
+    public UploadResponse upload(List<MultipartFile> files, IdamTokens idamTokens) {
 
         String serviceAuthorization = authTokenGenerator.generate();
 
         try {
             DocumentUploadRequest documentUploadRequest = new DocumentUploadRequest(Classification.RESTRICTED.name(), "Benefit", "SSCS", files);
-            return caseDocumentClientApi.uploadDocuments(S2S_TOKEN, serviceAuthorization, documentUploadRequest);
+            return caseDocumentClientApi.uploadDocuments(idamTokens.getIdamOauth2Token(), serviceAuthorization, documentUploadRequest);
         } catch (HttpClientErrorException httpClientErrorException) {
             log.error("Secure Doc Store service failed to upload documents...", httpClientErrorException);
             if (null != files) {

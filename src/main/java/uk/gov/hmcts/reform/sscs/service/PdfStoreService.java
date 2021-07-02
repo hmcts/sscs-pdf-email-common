@@ -18,6 +18,8 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocument;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocumentDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocumentTranslationStatus;
 import uk.gov.hmcts.reform.sscs.domain.pdf.ByteArrayMultipartFile;
+import uk.gov.hmcts.reform.sscs.idam.IdamService;
+import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 
 @Service
 @Slf4j
@@ -25,14 +27,17 @@ public class PdfStoreService {
     private final EvidenceManagementService evidenceManagementService;
     private final EvidenceManagementSecureDocStoreService evidenceManagementSecureDocStoreService;
     private final boolean secureDocStoreEnabled;
+    private IdamService idamService;
 
     @Autowired
     public PdfStoreService(EvidenceManagementService evidenceManagementService,
                            EvidenceManagementSecureDocStoreService evidenceManagementSecureDocStoreService,
-                           @Value("${feature.secure-doc-store.enabled:false}") boolean secureDocStoreEnabled) {
+                           @Value("${feature.secure-doc-store.enabled:false}") boolean secureDocStoreEnabled,
+                           IdamService idamService) {
         this.evidenceManagementService = evidenceManagementService;
         this.evidenceManagementSecureDocStoreService = evidenceManagementSecureDocStoreService;
         this.secureDocStoreEnabled = secureDocStoreEnabled;
+        this.idamService = idamService;
     }
 
     public List<SscsDocument> store(byte[] content, String fileName, String documentType) {
@@ -70,7 +75,8 @@ public class PdfStoreService {
         ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(content).name(fileName)
                 .contentType(APPLICATION_PDF).build();
         try {
-            UploadResponse upload = evidenceManagementSecureDocStoreService.upload(singletonList(file));
+            IdamTokens idamTokens = idamService.getIdamTokens();
+            UploadResponse upload = evidenceManagementSecureDocStoreService.upload(singletonList(file), idamTokens);
             String location = upload.getDocuments().get(0).links.self.href;
 
             DocumentLink documentLink = DocumentLink.builder().documentUrl(location).build();

@@ -17,6 +17,8 @@ import uk.gov.hmcts.reform.document.domain.UploadResponse;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocument;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocumentDetails;
 import uk.gov.hmcts.reform.sscs.domain.pdf.ByteArrayMultipartFile;
+import uk.gov.hmcts.reform.sscs.idam.IdamService;
+import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 
 public class PdfStoreServiceTest {
 
@@ -29,13 +31,15 @@ public class PdfStoreServiceTest {
     private final EvidenceManagementSecureDocStoreService evidenceManagementSecureDocStoreService;
     private final PdfStoreService pdfStoreService;
     private final PdfStoreService pdfStoreSecureDocStore;
+    private final IdamService idamService;
     private final List<MultipartFile> files;
 
     public PdfStoreServiceTest() {
         evidenceManagementService = mock(EvidenceManagementService.class);
         evidenceManagementSecureDocStoreService = mock(EvidenceManagementSecureDocStoreService.class);
-        pdfStoreService = new PdfStoreService(evidenceManagementService, evidenceManagementSecureDocStoreService, false);
-        pdfStoreSecureDocStore = new PdfStoreService(evidenceManagementService, evidenceManagementSecureDocStoreService, true);
+        idamService = mock(IdamService.class);
+        pdfStoreService = new PdfStoreService(evidenceManagementService, evidenceManagementSecureDocStoreService, false, idamService);
+        pdfStoreSecureDocStore = new PdfStoreService(evidenceManagementService, evidenceManagementSecureDocStoreService, true, idamService);
 
         files = singletonList(ByteArrayMultipartFile.builder().content(content).name(filename).contentType(APPLICATION_PDF).build());
     }
@@ -64,7 +68,9 @@ public class PdfStoreServiceTest {
     @Test
     public void uploadsPdfAndExtractsLinkForSecureDocStore() {
         uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse uploadResponse = createUploadResponseSecureDocStore();
-        when(evidenceManagementSecureDocStoreService.upload(files)).thenReturn(uploadResponse);
+        IdamTokens idamTokens = IdamTokens.builder().idamOauth2Token("idamOauth2Token").build();
+        when(idamService.getIdamTokens()).thenReturn(idamTokens);
+        when(evidenceManagementSecureDocStoreService.upload(files, idamTokens)).thenReturn(uploadResponse);
 
         List<SscsDocument> documents = pdfStoreSecureDocStore.store(content, filename, "appellantEvidence");
 

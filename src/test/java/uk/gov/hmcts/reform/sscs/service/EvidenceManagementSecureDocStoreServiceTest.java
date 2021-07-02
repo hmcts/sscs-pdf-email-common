@@ -24,11 +24,13 @@ import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.sscs.document.EvidenceDownloadClientApi;
 import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
+import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 
 public class EvidenceManagementSecureDocStoreServiceTest {
 
     public static final String SERVICE_AUTHORIZATION = "service-authorization";
     public static final String SSCS_USER = "sscs";
+    private static final IdamTokens IDAM_TOKENS = IdamTokens.builder().idamOauth2Token("idamOauth2Token").build();
 
     @Mock
     private AuthTokenGenerator authTokenGenerator;
@@ -56,7 +58,7 @@ public class EvidenceManagementSecureDocStoreServiceTest {
         when(caseDocumentClientApi.uploadDocuments(any(), eq(SERVICE_AUTHORIZATION), any()))
                 .thenReturn(expectedUploadResponse);
 
-        UploadResponse actualUploadedResponse = evidenceManagementSecureDocStoreService.upload(files);
+        UploadResponse actualUploadedResponse = evidenceManagementSecureDocStoreService.upload(files, IDAM_TOKENS);
 
         verify(caseDocumentClientApi, times(1))
                 .uploadDocuments(any(), eq(SERVICE_AUTHORIZATION), any());
@@ -72,7 +74,7 @@ public class EvidenceManagementSecureDocStoreServiceTest {
         when(caseDocumentClientApi.uploadDocuments(any(), eq(SERVICE_AUTHORIZATION), any()))
                 .thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
 
-        evidenceManagementSecureDocStoreService.upload(files);
+        evidenceManagementSecureDocStoreService.upload(files, IDAM_TOKENS);
 
     }
 
@@ -94,7 +96,7 @@ public class EvidenceManagementSecureDocStoreServiceTest {
         when(caseDocumentClientApi.uploadDocuments(any(), eq(SERVICE_AUTHORIZATION), any()))
                 .thenThrow(new Exception("AppealNumber"));
 
-        evidenceManagementSecureDocStoreService.upload(files);
+        evidenceManagementSecureDocStoreService.upload(files, IDAM_TOKENS);
     }
 
     @Test
