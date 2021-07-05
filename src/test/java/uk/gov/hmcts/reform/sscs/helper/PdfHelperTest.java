@@ -128,7 +128,7 @@ public class PdfHelperTest {
             document.addPage(new PDPage(new PDRectangle(pageSize.getWidth() - 100, pageSize.getHeight())));
 
             BigDecimal result = pdfHelper.scalingFactor(document.getPage(0), pageSize);
-            assertEquals(new BigDecimal(-1), result);
+            assertEquals(BigDecimal.ONE.setScale(2), result.setScale(2));
         }
     }
 
@@ -139,7 +139,7 @@ public class PdfHelperTest {
             document.addPage(new PDPage(new PDRectangle(pageSize.getWidth(), pageSize.getHeight() - 100)));
 
             BigDecimal result = pdfHelper.scalingFactor(document.getPage(0), pageSize);
-            assertEquals(BigDecimal.ONE.negate(), result);
+            assertEquals(BigDecimal.ONE.setScale(2), result.setScale(2));
         }
     }
 
