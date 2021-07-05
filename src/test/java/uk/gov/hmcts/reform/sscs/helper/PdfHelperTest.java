@@ -180,8 +180,8 @@ public class PdfHelperTest {
             try (PDDocument newDocument = result.get()) {
                 PDRectangle mediaBox = newDocument.getPage(0).getMediaBox();
 
-                assertTrue(pageSize.getHeight() >= mediaBox.getWidth());
-                assertTrue(pageSize.getWidth() >= mediaBox.getHeight());
+                assertTrue(pageSize.getHeight() >= mediaBox.getHeight());
+                assertTrue(pageSize.getWidth() >= mediaBox.getWidth());
             }
         }
     }
@@ -240,8 +240,8 @@ public class PdfHelperTest {
             try (PDDocument newDocument = result.get()) {
                 PDRectangle mediaBox = newDocument.getPage(0).getMediaBox();
 
-                assertEquals(0.0, pageSize.getHeight(), mediaBox.getWidth());
-                assertEquals(0.0, pageSize.getWidth(), mediaBox.getHeight());
+                assertEquals(0.0, pageSize.getHeight(), mediaBox.getHeight());
+                assertEquals(0.0, pageSize.getWidth(), mediaBox.getWidth());
             }
         }
     }

@@ -46,8 +46,8 @@ public class PdfHelper {
     }
 
     private boolean isPageCorrectSize(PDPage page, PDRectangle size) {
-        float pageHeight = page.getMediaBox().getHeight();
-        float pageWidth = page.getMediaBox().getWidth();
+        float pageHeight = page.getCropBox().getHeight();
+        float pageWidth = page.getCropBox().getWidth();
 
         float upperLimitHeight = size.getHeight() * (1 + TOLERANCE_FACTOR);
         float lowerLimitHeight = size.getHeight() * (1 - TOLERANCE_FACTOR);
@@ -134,7 +134,7 @@ public class PdfHelper {
     }
 
     protected void scalePageToSize(PDPage page, PDRectangle size) {
-        PDRectangle newSize = page.getMediaBox().getHeight() > page.getMediaBox().getWidth() ? size : new PDRectangle(size.getHeight(), size.getWidth());
+        PDRectangle newSize = page.getMediaBox().getHeight() > page.getMediaBox().getWidth() ? size : new PDRectangle(size.getWidth(), size.getHeight());
         page.setMediaBox(newSize);
         page.setCropBox(newSize);
         page.setBleedBox(newSize);
