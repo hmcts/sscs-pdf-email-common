@@ -1,14 +1,18 @@
 package uk.gov.hmcts.reform.sscs.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -18,8 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
-import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
-import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClientApi;
+import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClient;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.sscs.document.EvidenceDownloadClientApi;
@@ -29,13 +32,10 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 public class EvidenceManagementSecureDocStoreServiceTest {
 
     public static final String SERVICE_AUTHORIZATION = "service-authorization";
-    public static final String SSCS_USER = "sscs";
-    private static final IdamTokens IDAM_TOKENS = IdamTokens.builder().idamOauth2Token("idamOauth2Token").build();
+    private static final IdamTokens IDAM_TOKENS = IdamTokens.builder().userId("123").idamOauth2Token("idamOauth2Token").serviceAuthorization(SERVICE_AUTHORIZATION).build();
 
     @Mock
-    private AuthTokenGenerator authTokenGenerator;
-    @Mock
-    private CaseDocumentClientApi caseDocumentClientApi;
+    private CaseDocumentClient caseDocumentClient;
     @Mock
     private EvidenceDownloadClientApi evidenceDownloadClientApi;
 
@@ -44,7 +44,7 @@ public class EvidenceManagementSecureDocStoreServiceTest {
     @Before
     public void setUp() {
         openMocks(this);
-        evidenceManagementSecureDocStoreService = new EvidenceManagementSecureDocStoreService(authTokenGenerator, caseDocumentClientApi, evidenceDownloadClientApi);
+        evidenceManagementSecureDocStoreService = new EvidenceManagementSecureDocStoreService(caseDocumentClient, evidenceDownloadClientApi);
     }
 
     @Test
@@ -54,14 +54,13 @@ public class EvidenceManagementSecureDocStoreServiceTest {
 
         UploadResponse expectedUploadResponse = mock(UploadResponse.class);
 
-        when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(caseDocumentClientApi.uploadDocuments(any(), eq(SERVICE_AUTHORIZATION), any()))
+        when(caseDocumentClient.uploadDocuments(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(SERVICE_AUTHORIZATION), eq("Benefit"), eq("SSCS"), any()))
                 .thenReturn(expectedUploadResponse);
 
         UploadResponse actualUploadedResponse = evidenceManagementSecureDocStoreService.upload(files, IDAM_TOKENS);
 
-        verify(caseDocumentClientApi, times(1))
-                .uploadDocuments(any(), eq(SERVICE_AUTHORIZATION), any());
+        verify(caseDocumentClient, times(1))
+                .uploadDocuments(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(SERVICE_AUTHORIZATION), eq("Benefit"), eq("SSCS"), any());
 
         assertEquals(actualUploadedResponse, expectedUploadResponse);
     }
@@ -70,8 +69,7 @@ public class EvidenceManagementSecureDocStoreServiceTest {
     public void uploadDocumentShouldThrowUnSupportedDocumentTypeExceptionIfAnyGivenDocumentTypeIsNotSupportedByDocumentStore() {
         List<MultipartFile> files = mockMultipartFiles();
 
-        when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(caseDocumentClientApi.uploadDocuments(any(), eq(SERVICE_AUTHORIZATION), any()))
+        when(caseDocumentClient.uploadDocuments(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(SERVICE_AUTHORIZATION), eq("Benefit"), eq("SSCS"), any()))
                 .thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
 
         evidenceManagementSecureDocStoreService.upload(files, IDAM_TOKENS);
@@ -92,8 +90,7 @@ public class EvidenceManagementSecureDocStoreServiceTest {
     public void uploadDocumentShouldRethrowAnyExceptionIfItsNotHttpClientErrorException() {
         List<MultipartFile> files = Collections.emptyList();
 
-        when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(caseDocumentClientApi.uploadDocuments(any(), eq(SERVICE_AUTHORIZATION), any()))
+        when(caseDocumentClient.uploadDocuments(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(SERVICE_AUTHORIZATION), eq("Benefit"), eq("SSCS"), any()))
                 .thenThrow(new Exception("AppealNumber"));
 
         evidenceManagementSecureDocStoreService.upload(files, IDAM_TOKENS);
@@ -112,11 +109,10 @@ public class EvidenceManagementSecureDocStoreServiceTest {
         stubbedLinks.binary = stubbedLink;
         Document stubbedDocument = Document.builder().links(stubbedLinks).build();
 
-        when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(caseDocumentClientApi.getMetadataForDocument(anyString(), anyString(), any())).thenReturn(stubbedDocument);
+        when(caseDocumentClient.getMetadataForDocument(anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
         when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(mockResponseEntity);
 
-        evidenceManagementSecureDocStoreService.download(UUID.randomUUID(), SSCS_USER);
+        evidenceManagementSecureDocStoreService.download(stubbedLink.href, IDAM_TOKENS);
 
         verify(mockResponseEntity, times(1)).getBody();
     }
@@ -133,17 +129,16 @@ public class EvidenceManagementSecureDocStoreServiceTest {
         Document stubbedDocument = Document.builder().links(stubbedLinks).build();
 
 
-        when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(caseDocumentClientApi.getMetadataForDocument(anyString(), anyString(), any())).thenReturn(stubbedDocument);
+        when(caseDocumentClient.getMetadataForDocument(anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
         when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(mockResponseEntity);
 
-        evidenceManagementSecureDocStoreService.download(UUID.randomUUID(), SSCS_USER);
+        evidenceManagementSecureDocStoreService.download(stubbedLink.href, IDAM_TOKENS);
 
         verify(mockResponseEntity, times(1)).getBody();
     }
 
     @Test(expected = UnsupportedDocumentTypeException.class)
-    public void downloadDocumentShoudlThrowExceptionWhenDocumentNotFound() {
+    public void downloadDocumentShouldThrowExceptionWhenDocumentNotFound() {
         ResponseEntity<Resource> mockResponseEntity = mock(ResponseEntity.class);
         ByteArrayResource stubbedResource = new ByteArrayResource(new byte[] {});
         when(mockResponseEntity.getBody()).thenReturn(stubbedResource);
@@ -154,28 +149,24 @@ public class EvidenceManagementSecureDocStoreServiceTest {
         stubbedLinks.binary = stubbedLink;
         Document stubbedDocument = Document.builder().links(stubbedLinks).build();
 
-        when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(caseDocumentClientApi.getMetadataForDocument(anyString(), anyString(), any())).thenReturn(stubbedDocument);
-        when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString(), anyString())).thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
+        when(caseDocumentClient.getMetadataForDocument(anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
+        when(evidenceDownloadClientApi.downloadBinary(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(IDAM_TOKENS.getServiceAuthorization()), eq(IDAM_TOKENS.getUserId()), anyString(), anyString())).thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
 
-        evidenceManagementSecureDocStoreService.download(UUID.randomUUID(), SSCS_USER);
+        evidenceManagementSecureDocStoreService.download(stubbedLink.href, IDAM_TOKENS);
     }
 
     @Test(expected = Exception.class)
     public void downloadDocumentShouldRethrowAnyExceptionIfItsNotHttpClientErrorException() {
-        List<MultipartFile> files = Collections.emptyList();
-
         Document.Link stubbedLink = new Document.Link();
         stubbedLink.href = "http://localhost:4506/documents/eb8cbfaa-37c3-4644-aa77-b9a2e2c72332";
         Document.Links stubbedLinks = new Document.Links();
         stubbedLinks.binary = stubbedLink;
         Document stubbedDocument = Document.builder().links(stubbedLinks).build();
 
-        when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(caseDocumentClientApi.getMetadataForDocument(anyString(), anyString(), any())).thenReturn(stubbedDocument);
+        when(caseDocumentClient.getMetadataForDocument(anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
         when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString(), anyString()))
             .thenThrow(new Exception("AppealNumber"));
 
-        evidenceManagementSecureDocStoreService.download(UUID.randomUUID(), SSCS_USER);
+        evidenceManagementSecureDocStoreService.download(stubbedLink.href, IDAM_TOKENS);
     }
 }

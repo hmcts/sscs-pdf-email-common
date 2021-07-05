@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import java.net.URI;
 import java.util.List;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -11,11 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
-import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
-import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClientApi;
-import uk.gov.hmcts.reform.ccd.document.am.model.Classification;
+import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClient;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
-import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.sscs.document.EvidenceDownloadClientApi;
 import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
@@ -25,30 +21,20 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 @Slf4j
 public class EvidenceManagementSecureDocStoreService {
 
-    public static final String S2S_TOKEN = "oauth2Token";
-
-    private final AuthTokenGenerator authTokenGenerator;
-    private final CaseDocumentClientApi caseDocumentClientApi;
+    private final CaseDocumentClient caseDocumentClient;
     private final EvidenceDownloadClientApi evidenceDownloadClientApi;
 
     @Autowired
-    public EvidenceManagementSecureDocStoreService(
-        AuthTokenGenerator authTokenGenerator,
-        CaseDocumentClientApi caseDocumentClientApi,
-        EvidenceDownloadClientApi evidenceDownloadClientApi
-    ) {
-        this.authTokenGenerator = authTokenGenerator;
-        this.caseDocumentClientApi = caseDocumentClientApi;
+    public EvidenceManagementSecureDocStoreService(CaseDocumentClient caseDocumentClient,
+                                                   EvidenceDownloadClientApi evidenceDownloadClientApi) {
+        this.caseDocumentClient = caseDocumentClient;
         this.evidenceDownloadClientApi = evidenceDownloadClientApi;
     }
 
     public UploadResponse upload(List<MultipartFile> files, IdamTokens idamTokens) {
 
-        String serviceAuthorization = authTokenGenerator.generate();
-
         try {
-            DocumentUploadRequest documentUploadRequest = new DocumentUploadRequest(Classification.RESTRICTED.name(), "Benefit", "SSCS", files);
-            return caseDocumentClientApi.uploadDocuments(idamTokens.getIdamOauth2Token(), serviceAuthorization, documentUploadRequest);
+            return caseDocumentClient.uploadDocuments(idamTokens.getIdamOauth2Token(), idamTokens.getServiceAuthorization(), "Benefit", "SSCS", files);
         } catch (HttpClientErrorException httpClientErrorException) {
             log.error("Secure Doc Store service failed to upload documents...", httpClientErrorException);
             if (null != files) {
@@ -58,16 +44,15 @@ public class EvidenceManagementSecureDocStoreService {
         }
     }
 
-    public byte[] download(UUID documentId, String userId) {
-        String serviceAuthorization = authTokenGenerator.generate();
+    public byte[] download(String selfHref, IdamTokens idamTokens) {
 
         try {
-            final Document documentMetadata = caseDocumentClientApi.getMetadataForDocument(S2S_TOKEN, serviceAuthorization, documentId);
+            final Document documentMetadata = caseDocumentClient.getMetadataForDocument(idamTokens.getIdamOauth2Token(), idamTokens.getServiceAuthorization(), selfHref);
 
             ResponseEntity<Resource> responseEntity = evidenceDownloadClientApi.downloadBinary(
-                S2S_TOKEN,
-                serviceAuthorization,
-                userId,
+                idamTokens.getIdamOauth2Token(),
+                idamTokens.getServiceAuthorization(),
+                idamTokens.getUserId(),
                 "caseworker",
                 URI.create(documentMetadata.links.binary.href).getPath().replaceFirst("/", "")
             );
