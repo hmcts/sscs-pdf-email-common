@@ -32,7 +32,7 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 public class EvidenceManagementSecureDocStoreServiceTest {
 
     public static final String SERVICE_AUTHORIZATION = "service-authorization";
-    private static final IdamTokens IDAM_TOKENS = IdamTokens.builder().userId("123").idamOauth2Token("idamOauth2Token").serviceAuthorization(SERVICE_AUTHORIZATION).build();
+    private static final IdamTokens IDAM_TOKENS = IdamTokens.builder().userId("123").roles(List.of("caseworker")).idamOauth2Token("idamOauth2Token").serviceAuthorization(SERVICE_AUTHORIZATION).build();
 
     @Mock
     private CaseDocumentClient caseDocumentClient;
