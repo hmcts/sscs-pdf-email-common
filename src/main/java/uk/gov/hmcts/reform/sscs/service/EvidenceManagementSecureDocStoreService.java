@@ -17,6 +17,8 @@ import uk.gov.hmcts.reform.sscs.document.EvidenceDownloadClientApi;
 import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 
+import static java.lang.String.join;
+
 @Service
 @Slf4j
 public class EvidenceManagementSecureDocStoreService {
@@ -47,13 +49,14 @@ public class EvidenceManagementSecureDocStoreService {
     public byte[] download(String selfHref, IdamTokens idamTokens) {
 
         try {
+            final String userRoles = join(",", idamTokens.getRoles());
             final Document documentMetadata = caseDocumentClient.getMetadataForDocument(idamTokens.getIdamOauth2Token(), idamTokens.getServiceAuthorization(), selfHref);
 
             ResponseEntity<Resource> responseEntity = evidenceDownloadClientApi.downloadBinary(
                 idamTokens.getIdamOauth2Token(),
                 idamTokens.getServiceAuthorization(),
                 idamTokens.getUserId(),
-                "caseworker",
+                userRoles,
                 URI.create(documentMetadata.links.binary.href).getPath().replaceFirst("/", "")
             );
 
