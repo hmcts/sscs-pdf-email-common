@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import static java.lang.String.join;
+
 import java.net.URI;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +18,6 @@ import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.sscs.document.EvidenceDownloadClientApi;
 import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
-
-import static java.lang.String.join;
 
 @Service
 @Slf4j
