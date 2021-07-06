@@ -19,6 +19,8 @@ import uk.gov.hmcts.reform.sscs.document.EvidenceDownloadClientApi;
 import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 
+import static java.lang.String.join;
+
 @Service
 @Slf4j
 public class EvidenceManagementSecureDocStoreService {
