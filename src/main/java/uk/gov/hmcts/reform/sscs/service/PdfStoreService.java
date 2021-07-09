@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -28,6 +29,7 @@ public class PdfStoreService {
     private final EvidenceManagementSecureDocStoreService evidenceManagementSecureDocStoreService;
     private final boolean secureDocStoreEnabled;
     private IdamService idamService;
+    static final String DM_STORE_USER_ID = "sscs";
 
     @Autowired
     public PdfStoreService(EvidenceManagementService evidenceManagementService,
@@ -79,6 +81,8 @@ public class PdfStoreService {
             UploadResponse upload = evidenceManagementSecureDocStoreService.upload(singletonList(file), idamTokens);
             String location = upload.getDocuments().get(0).links.self.href;
 
+            log.info("location" + location);
+
             DocumentLink documentLink = DocumentLink.builder().documentUrl(location).build();
             SscsDocumentDetails sscsDocumentDetails = SscsDocumentDetails.builder()
                     .documentFileName(fileName)
@@ -93,6 +97,14 @@ public class PdfStoreService {
         } catch (RestClientException e) {
             log.error("Failed to store pdf document but carrying on [" + fileName + "]", e);
             return emptyList();
+        }
+    }
+
+    public byte[] download(String href) {
+        if (secureDocStoreEnabled) {
+            return evidenceManagementSecureDocStoreService.download(href, idamService.getIdamTokens());
+        } else {
+            return evidenceManagementService.download(URI.create(href), DM_STORE_USER_ID);
         }
     }
 }
