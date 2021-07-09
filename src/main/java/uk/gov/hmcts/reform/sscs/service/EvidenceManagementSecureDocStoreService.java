@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import java.net.URI;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +45,9 @@ public class EvidenceManagementSecureDocStoreService {
 
     public byte[] download(String selfHref, IdamTokens idamTokens) {
         try {
+            String documentHref = URI.create(selfHref).getPath().replaceFirst("/", "");
             ResponseEntity<Resource> responseEntity = caseDocumentClient.getDocumentBinary(idamTokens.getIdamOauth2Token(),
-                    idamTokens.getServiceAuthorization(), selfHref);
+                    idamTokens.getServiceAuthorization(), documentHref);
 
             ByteArrayResource resource = (ByteArrayResource) responseEntity.getBody();
             return (resource != null) ? resource.getByteArray() : new byte[0];
