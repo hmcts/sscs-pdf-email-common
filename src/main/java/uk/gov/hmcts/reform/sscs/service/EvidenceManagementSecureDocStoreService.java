@@ -47,18 +47,9 @@ public class EvidenceManagementSecureDocStoreService {
     }
 
     public byte[] download(String selfHref, IdamTokens idamTokens) {
-
         try {
-            final String userRoles = join(",", idamTokens.getRoles());
-            final Document documentMetadata = caseDocumentClient.getMetadataForDocument(idamTokens.getIdamOauth2Token(), idamTokens.getServiceAuthorization(), selfHref);
-
-            ResponseEntity<Resource> responseEntity = evidenceDownloadClientApi.downloadBinary(
-                idamTokens.getIdamOauth2Token(),
-                idamTokens.getServiceAuthorization(),
-                idamTokens.getUserId(),
-                userRoles,
-                URI.create(documentMetadata.links.binary.href).getPath().replaceFirst("/", "")
-            );
+            ResponseEntity<Resource> responseEntity = caseDocumentClient.getDocumentBinary(idamTokens.getIdamOauth2Token(),
+                    idamTokens.getServiceAuthorization(), selfHref);
 
             ByteArrayResource resource = (ByteArrayResource) responseEntity.getBody();
             return (resource != null) ? resource.getByteArray() : new byte[0];

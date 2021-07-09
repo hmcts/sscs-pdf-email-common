@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -109,8 +108,7 @@ public class EvidenceManagementSecureDocStoreServiceTest {
         stubbedLinks.binary = stubbedLink;
         Document stubbedDocument = Document.builder().links(stubbedLinks).build();
 
-        when(caseDocumentClient.getMetadataForDocument(anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
-        when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(mockResponseEntity);
+        when(caseDocumentClient.getDocumentBinary(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(SERVICE_AUTHORIZATION), eq(stubbedLink.href))).thenReturn(mockResponseEntity);
 
         evidenceManagementSecureDocStoreService.download(stubbedLink.href, IDAM_TOKENS);
 
@@ -128,9 +126,7 @@ public class EvidenceManagementSecureDocStoreServiceTest {
         stubbedLinks.binary = stubbedLink;
         Document stubbedDocument = Document.builder().links(stubbedLinks).build();
 
-
-        when(caseDocumentClient.getMetadataForDocument(anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
-        when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(mockResponseEntity);
+        when(caseDocumentClient.getDocumentBinary(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(SERVICE_AUTHORIZATION), eq(stubbedLink.href))).thenReturn(mockResponseEntity);
 
         evidenceManagementSecureDocStoreService.download(stubbedLink.href, IDAM_TOKENS);
 
@@ -149,8 +145,7 @@ public class EvidenceManagementSecureDocStoreServiceTest {
         stubbedLinks.binary = stubbedLink;
         Document stubbedDocument = Document.builder().links(stubbedLinks).build();
 
-        when(caseDocumentClient.getMetadataForDocument(anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
-        when(evidenceDownloadClientApi.downloadBinary(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(IDAM_TOKENS.getServiceAuthorization()), eq(IDAM_TOKENS.getUserId()), anyString(), anyString())).thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
+        when(caseDocumentClient.getDocumentBinary(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(IDAM_TOKENS.getServiceAuthorization()), eq(stubbedLink.href))).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
 
         evidenceManagementSecureDocStoreService.download(stubbedLink.href, IDAM_TOKENS);
     }
@@ -163,9 +158,7 @@ public class EvidenceManagementSecureDocStoreServiceTest {
         stubbedLinks.binary = stubbedLink;
         Document stubbedDocument = Document.builder().links(stubbedLinks).build();
 
-        when(caseDocumentClient.getMetadataForDocument(anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
-        when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString(), anyString()))
-            .thenThrow(new Exception("AppealNumber"));
+        when(caseDocumentClient.getDocumentBinary(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(IDAM_TOKENS.getServiceAuthorization()), eq(stubbedLink.href))).thenThrow(new Exception("AppealNumber"));
 
         evidenceManagementSecureDocStoreService.download(stubbedLink.href, IDAM_TOKENS);
     }
