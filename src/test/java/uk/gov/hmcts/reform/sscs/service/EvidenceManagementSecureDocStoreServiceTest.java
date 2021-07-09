@@ -9,10 +9,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.core.io.ByteArrayResource;
@@ -108,7 +110,8 @@ public class EvidenceManagementSecureDocStoreServiceTest {
         stubbedLinks.binary = stubbedLink;
         Document stubbedDocument = Document.builder().links(stubbedLinks).build();
 
-        when(caseDocumentClient.getDocumentBinary(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(SERVICE_AUTHORIZATION), eq(stubbedLink.href))).thenReturn(mockResponseEntity);
+        String documentHref = URI.create(stubbedLink.href).getPath().replaceFirst("/", "");
+        when(caseDocumentClient.getDocumentBinary(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(SERVICE_AUTHORIZATION), eq(documentHref))).thenReturn(mockResponseEntity);
 
         evidenceManagementSecureDocStoreService.download(stubbedLink.href, IDAM_TOKENS);
 
@@ -126,7 +129,8 @@ public class EvidenceManagementSecureDocStoreServiceTest {
         stubbedLinks.binary = stubbedLink;
         Document stubbedDocument = Document.builder().links(stubbedLinks).build();
 
-        when(caseDocumentClient.getDocumentBinary(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(SERVICE_AUTHORIZATION), eq(stubbedLink.href))).thenReturn(mockResponseEntity);
+        String documentHref = URI.create(stubbedLink.href).getPath().replaceFirst("/", "");
+        when(caseDocumentClient.getDocumentBinary(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(SERVICE_AUTHORIZATION), eq(documentHref))).thenReturn(mockResponseEntity);
 
         evidenceManagementSecureDocStoreService.download(stubbedLink.href, IDAM_TOKENS);
 
@@ -145,7 +149,8 @@ public class EvidenceManagementSecureDocStoreServiceTest {
         stubbedLinks.binary = stubbedLink;
         Document stubbedDocument = Document.builder().links(stubbedLinks).build();
 
-        when(caseDocumentClient.getDocumentBinary(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(IDAM_TOKENS.getServiceAuthorization()), eq(stubbedLink.href))).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
+        String documentHref = URI.create(stubbedLink.href).getPath().replaceFirst("/", "");
+        when(caseDocumentClient.getDocumentBinary(eq(IDAM_TOKENS.getIdamOauth2Token()), eq(IDAM_TOKENS.getServiceAuthorization()), eq(documentHref))).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
 
         evidenceManagementSecureDocStoreService.download(stubbedLink.href, IDAM_TOKENS);
     }
