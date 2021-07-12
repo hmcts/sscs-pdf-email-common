@@ -53,6 +53,7 @@ public class PdfStoreService {
         ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(content).name(fileName)
                 .contentType(APPLICATION_PDF).build();
         try {
+            log.info("Storing file {} of type {} into docstore", fileName, documentType);
             uk.gov.hmcts.reform.document.domain.UploadResponse upload = evidenceManagementService.upload(singletonList(file), "sscs");
             String location = upload.getEmbedded().getDocuments().get(0).links.self.href;
 
@@ -77,6 +78,7 @@ public class PdfStoreService {
         ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(content).name(fileName)
                 .contentType(APPLICATION_PDF).build();
         try {
+            log.info("Storing file {} of type {} into secure docstore", fileName, documentType);
             IdamTokens idamTokens = idamService.getIdamTokens();
             UploadResponse upload = evidenceManagementSecureDocStoreService.upload(singletonList(file), idamTokens);
             String location = upload.getDocuments().get(0).links.self.href;
@@ -100,8 +102,10 @@ public class PdfStoreService {
 
     public byte[] download(String href) {
         if (secureDocStoreEnabled) {
+            log.info("Downloading file {} from secure docstore", href);
             return evidenceManagementSecureDocStoreService.download(href, idamService.getIdamTokens());
         } else {
+            log.info("Downloading file {} from docstore", href);
             return evidenceManagementService.download(URI.create(href), DM_STORE_USER_ID);
         }
     }
