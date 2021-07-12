@@ -81,8 +81,6 @@ public class PdfStoreService {
             UploadResponse upload = evidenceManagementSecureDocStoreService.upload(singletonList(file), idamTokens);
             String location = upload.getDocuments().get(0).links.self.href;
 
-            log.info("location" + location);
-
             DocumentLink documentLink = DocumentLink.builder().documentUrl(location).build();
             SscsDocumentDetails sscsDocumentDetails = SscsDocumentDetails.builder()
                     .documentFileName(fileName)
