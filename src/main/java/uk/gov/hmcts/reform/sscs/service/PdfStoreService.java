@@ -82,8 +82,9 @@ public class PdfStoreService {
             IdamTokens idamTokens = idamService.getIdamTokens();
             UploadResponse upload = evidenceManagementSecureDocStoreService.upload(singletonList(file), idamTokens);
             String location = upload.getDocuments().get(0).links.self.href;
+            String hash = upload.getDocuments().get(0).hashToken;
 
-            DocumentLink documentLink = DocumentLink.builder().documentUrl(location).build();
+            DocumentLink documentLink = DocumentLink.builder().documentUrl(location).documentHash(hash).build();
             SscsDocumentDetails sscsDocumentDetails = SscsDocumentDetails.builder()
                     .documentFileName(fileName)
                     .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
