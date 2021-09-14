@@ -7,7 +7,6 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -122,10 +121,9 @@ public class CcdPdfService {
     }
 
     private String getDocumentDateAdded(SscsDocumentDetails pdfDocDetails) {
-        try {
-            LocalDateTime dateTime = LocalDateTime.parse(pdfDocDetails.getDocumentDateAdded());
-            return dateTime.format(DateTimeFormatter.ISO_DATE_TIME);
-        } catch (DateTimeParseException e) {
+        if (LocalDate.parse(pdfDocDetails.getDocumentDateAdded()).isEqual(LocalDate.now())) {
+            return LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+        } else {
             return LocalDate.parse(pdfDocDetails.getDocumentDateAdded()).atStartOfDay().format(DateTimeFormatter.ISO_DATE_TIME);
         }
     }

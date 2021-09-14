@@ -60,7 +60,7 @@ public class PdfStoreService {
             DocumentLink documentLink = DocumentLink.builder().documentUrl(location).build();
             SscsDocumentDetails sscsDocumentDetails = SscsDocumentDetails.builder()
                     .documentFileName(fileName)
-                    .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
+                    .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
                     .documentLink(documentLink)
                     .documentType(documentType)
                     .documentTranslationStatus(documentTranslationStatus)
@@ -86,7 +86,7 @@ public class PdfStoreService {
             DocumentLink documentLink = DocumentLink.builder().documentUrl(location).build();
             SscsDocumentDetails sscsDocumentDetails = SscsDocumentDetails.builder()
                     .documentFileName(fileName)
-                    .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
+                    .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
                     .documentLink(documentLink)
                     .documentType(documentType)
                     .documentTranslationStatus(documentTranslationStatus)

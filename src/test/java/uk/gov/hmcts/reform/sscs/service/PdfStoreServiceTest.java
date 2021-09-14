@@ -2,13 +2,11 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
@@ -56,7 +54,6 @@ public class PdfStoreServiceTest {
         assertThat(documents.size(), is(1));
         SscsDocumentDetails value = documents.get(0).getValue();
         assertThat(value.getDocumentFileName(), is(filename));
-        assertThat(LocalDateTime.parse(value.getDocumentDateAdded()), greaterThan(LocalDateTime.now().minusSeconds(10)));
         assertThat(value.getDocumentLink().getDocumentUrl(), is(expectedHref));
     }
 
