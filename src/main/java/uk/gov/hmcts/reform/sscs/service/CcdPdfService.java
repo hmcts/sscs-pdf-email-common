@@ -7,6 +7,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -102,9 +103,9 @@ public class CcdPdfService {
         }
         SscsDocumentDetails pdfDocDetails = pdfDocuments.get(0).getValue();
 
-        String dateAdded = null;
+        final String dateAdded;
         if (pdfDocDetails.getDocumentDateAdded() != null) {
-            dateAdded = LocalDate.parse(pdfDocDetails.getDocumentDateAdded()).atStartOfDay().format(DateTimeFormatter.ISO_DATE_TIME);
+            dateAdded = getDocumentDateAdded(pdfDocDetails);
         } else {
             dateAdded = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
         }
@@ -118,6 +119,15 @@ public class CcdPdfService {
                         .build())
                 .build();
         return Collections.singletonList(scannedDoc);
+    }
+
+    private String getDocumentDateAdded(SscsDocumentDetails pdfDocDetails) {
+        try {
+            LocalDateTime dateTime = LocalDateTime.parse(pdfDocDetails.getDocumentDateAdded());
+            return dateTime.format(DateTimeFormatter.ISO_DATE_TIME);
+        } catch (DateTimeParseException e) {
+            return LocalDate.parse(pdfDocDetails.getDocumentDateAdded()).atStartOfDay().format(DateTimeFormatter.ISO_DATE_TIME);
+        }
     }
 
     private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens,

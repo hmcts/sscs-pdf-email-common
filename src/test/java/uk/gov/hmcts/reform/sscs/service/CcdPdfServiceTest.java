@@ -15,7 +15,6 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPLOAD_DOCUMENT;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseData;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -52,7 +51,7 @@ public class CcdPdfServiceTest {
     @Mock
     CcdService ccdService;
 
-    private SscsCaseData caseData = buildCaseData();
+    private final SscsCaseData caseData = buildCaseData();
 
     @Before
     public void setup() {
@@ -127,7 +126,7 @@ public class CcdPdfServiceTest {
             .value(ScannedDocumentDetails.builder()
                 .fileName(expectedDocValues.getDocumentFileName())
                 .url(expectedDocValues.getDocumentLink())
-                .scannedDate(LocalDate.parse(expectedDocValues.getDocumentDateAdded()).atStartOfDay().format(DateTimeFormatter.ISO_DATE_TIME))
+                .scannedDate(LocalDateTime.parse(expectedDocValues.getDocumentDateAdded()).format(DateTimeFormatter.ISO_DATE_TIME))
                 .type("other")
                 .build())
             .build();
@@ -137,7 +136,7 @@ public class CcdPdfServiceTest {
         String doc1FileName = "Appellant statement 1 - SC0011111.pdf";
         SscsDocumentDetails sscsDocumentDetails1 = SscsDocumentDetails.builder()
             .documentFileName(doc1FileName)
-            .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
+            .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
             .documentLink(DocumentLink.builder().documentUrl("http://dm-store").build())
             .documentType("Other evidence")
             .build();
@@ -145,7 +144,7 @@ public class CcdPdfServiceTest {
         String doc1RepFileName = "Representative statement 1 - SC0011111.pdf";
         SscsDocumentDetails sscsDocumentDetails1WithRepStatement = SscsDocumentDetails.builder()
             .documentFileName(doc1RepFileName)
-            .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
+            .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
             .documentLink(DocumentLink.builder().documentUrl("http://dm-store").build())
             .documentType("Other evidence")
             .build();
@@ -157,7 +156,7 @@ public class CcdPdfServiceTest {
         String doc2FileName = "Appellant statement 2 - SC0022222.pdf";
         SscsDocumentDetails sscsDocumentDetails2 = SscsDocumentDetails.builder()
             .documentFileName(doc2FileName)
-            .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
+            .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
             .documentLink(DocumentLink.builder().documentUrl("http://dm-store2").build())
             .documentType("Other evidence")
             .build();

@@ -28,7 +28,7 @@ public class PdfStoreService {
     private final EvidenceManagementService evidenceManagementService;
     private final EvidenceManagementSecureDocStoreService evidenceManagementSecureDocStoreService;
     private final boolean secureDocStoreEnabled;
-    private IdamService idamService;
+    private final IdamService idamService;
     static final String DM_STORE_USER_ID = "sscs";
 
     @Autowired
@@ -60,7 +60,7 @@ public class PdfStoreService {
             DocumentLink documentLink = DocumentLink.builder().documentUrl(location).build();
             SscsDocumentDetails sscsDocumentDetails = SscsDocumentDetails.builder()
                     .documentFileName(fileName)
-                    .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
+                    .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
                     .documentLink(documentLink)
                     .documentType(documentType)
                     .documentTranslationStatus(documentTranslationStatus)
@@ -86,7 +86,7 @@ public class PdfStoreService {
             DocumentLink documentLink = DocumentLink.builder().documentUrl(location).build();
             SscsDocumentDetails sscsDocumentDetails = SscsDocumentDetails.builder()
                     .documentFileName(fileName)
-                    .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
+                    .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
                     .documentLink(documentLink)
                     .documentType(documentType)
                     .documentTranslationStatus(documentTranslationStatus)
