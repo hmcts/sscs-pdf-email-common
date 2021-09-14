@@ -94,7 +94,7 @@ dependencies {
     compile group: 'com.github.hmcts', name: 'java-logging', version: versions.reformLogging
     compile group: 'com.github.hmcts', name: 'cmc-pdf-service-client', version: '7.0.0'
 
-    implementation 'com.github.hmcts:sscs-common:4.4.61'
+    implementation 'com.github.hmcts:sscs-common:4.4.64'
 
     implementation("com.github.hmcts:ccd-case-document-am-client:1.7.1")
     // Remove this dependency once the secure doc-store is in use
