@@ -8,6 +8,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,10 +44,30 @@ public class PdfStoreService {
     }
 
     public List<SscsDocument> store(byte[] content, String fileName, String documentType) {
-        return this.store(content, fileName, documentType, null);
+        SscsDocument sscsDocument = this.storeDocument(content, fileName, documentType);
+        if (sscsDocument == null) {
+            return emptyList();
+        }
+        return singletonList(sscsDocument);
     }
 
     public List<SscsDocument> store(byte[] content, String fileName, String documentType, SscsDocumentTranslationStatus documentTranslationStatus) {
+        SscsDocument sscsDocument = this.storeDocument(content, fileName, documentType, documentTranslationStatus);
+        if (sscsDocument == null) {
+            return emptyList();
+        }
+        return singletonList(sscsDocument);
+    }
+
+    public SscsDocument storeDocument(byte[] content) {
+        return this.storeDocument(content, null, null);
+    }
+
+    public SscsDocument storeDocument(byte[] content, String fileName, String documentType) {
+        return this.storeDocument(content, fileName, documentType, null);
+    }
+
+    public SscsDocument storeDocument(byte[] content, String fileName, String documentType, SscsDocumentTranslationStatus documentTranslationStatus) {
         if (secureDocStoreEnabled) {
             return storeSecureDocStore(content, fileName, documentType, documentTranslationStatus);
         }
@@ -67,14 +88,14 @@ public class PdfStoreService {
                     .build();
             SscsDocument pdfDocument = SscsDocument.builder().value(sscsDocumentDetails).build();
 
-            return singletonList(pdfDocument);
+            return pdfDocument;
         } catch (RestClientException e) {
             log.error("Failed to store pdf document but carrying on [" + fileName + "]", e);
-            return emptyList();
+            return null;
         }
     }
 
-    public List<SscsDocument> storeSecureDocStore(byte[] content, String fileName, String documentType, SscsDocumentTranslationStatus documentTranslationStatus) {
+    public SscsDocument storeSecureDocStore(byte[] content, String fileName, String documentType, SscsDocumentTranslationStatus documentTranslationStatus) {
         ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(content).name(fileName)
                 .contentType(APPLICATION_PDF).build();
         try {
@@ -94,10 +115,10 @@ public class PdfStoreService {
                     .build();
             SscsDocument pdfDocument = SscsDocument.builder().value(sscsDocumentDetails).build();
 
-            return singletonList(pdfDocument);
+            return pdfDocument;
         } catch (RestClientException e) {
             log.error("Failed to store pdf document but carrying on [" + fileName + "]", e);
-            return emptyList();
+            return null;
         }
     }
 
