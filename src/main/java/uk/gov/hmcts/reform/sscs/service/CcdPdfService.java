@@ -115,6 +115,7 @@ public class CcdPdfService {
                         .url(pdfDocDetails.getDocumentLink())
                         .scannedDate(dateAdded)
                         .type("other")
+                        .hashToken(pdfDocDetails.getDocumentLink().getDocumentHash())
                         .build())
                 .build();
         return Collections.singletonList(scannedDoc);
