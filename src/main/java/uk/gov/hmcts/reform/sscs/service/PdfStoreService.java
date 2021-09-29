@@ -78,8 +78,7 @@ public class PdfStoreService {
             uk.gov.hmcts.reform.document.domain.UploadResponse upload = evidenceManagementService.upload(singletonList(file), "sscs");
             String location = upload.getEmbedded().getDocuments().get(0).links.self.href;
 
-            DocumentLink documentLink = DocumentLink.builder().documentUrl(location).documentBinaryUrl(location + "/binary")
-                    .documentFilename(fileName).build();
+            DocumentLink documentLink = DocumentLink.builder().documentUrl(location).build();
             SscsDocumentDetails sscsDocumentDetails = SscsDocumentDetails.builder()
                     .documentFileName(fileName)
                     .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
