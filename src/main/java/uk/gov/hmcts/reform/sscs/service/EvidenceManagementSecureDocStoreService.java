@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import feign.FeignException;
 import java.net.URI;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +56,18 @@ public class EvidenceManagementSecureDocStoreService {
             log.error("Secure Doc Store service failed to download document...", httpClientErrorException);
             throw new UnsupportedDocumentTypeException(httpClientErrorException);
         }
+    }
+
+    public boolean getDocumentExists(String selfHref, IdamTokens idamTokens) {
+        try {
+            caseDocumentClient.getMetadataForDocument(idamTokens.getIdamOauth2Token(), idamTokens.getServiceAuthorization(),
+                    selfHref);
+        } catch (FeignException ex) {
+            if (ex.status() == 404) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void logFiles(List<MultipartFile> files) {
