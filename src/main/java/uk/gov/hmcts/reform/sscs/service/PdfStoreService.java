@@ -4,11 +4,11 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
 
+import feign.FeignException;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -126,7 +126,13 @@ public class PdfStoreService {
     public byte[] download(String href) {
         if (secureDocStoreEnabled) {
             log.info("Downloading file {} from secure docstore", href);
-            return evidenceManagementSecureDocStoreService.download(href, idamService.getIdamTokens());
+            try {
+                return evidenceManagementSecureDocStoreService.download(href, idamService.getIdamTokens());
+            } catch (FeignException e) {
+                log.error("Download from secure docstore failed for file {}: ", href, e);
+                log.info("Downloading file {} from docstore", href);
+                return evidenceManagementService.download(URI.create(href), DM_STORE_USER_ID);
+            }
         } else {
             log.info("Downloading file {} from docstore", href);
             return evidenceManagementService.download(URI.create(href), DM_STORE_USER_ID);
