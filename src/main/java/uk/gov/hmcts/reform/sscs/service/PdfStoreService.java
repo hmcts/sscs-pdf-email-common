@@ -63,6 +63,10 @@ public class PdfStoreService {
         return this.storeDocument(content, null, null);
     }
 
+    public SscsDocument storeDocument(byte[] content, String fileName) {
+        return this.storeDocument(content, fileName, null);
+    }
+
     public SscsDocument storeDocument(byte[] content, String fileName, String documentType) {
         return this.storeDocument(content, fileName, documentType, null);
     }
