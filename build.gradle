@@ -100,7 +100,7 @@ dependencies {
     // Remove this dependency once the secure doc-store is in use
     compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '7.0.0'
 
-    compile group: 'org.springframework', name: 'spring-context-support', version: '5.3.10'
+    compile group: 'org.springframework', name: 'spring-context-support', version: '5.3.12'
     compile group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
     compile group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
 
