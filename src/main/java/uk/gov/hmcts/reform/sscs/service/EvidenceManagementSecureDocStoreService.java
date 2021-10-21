@@ -57,6 +57,12 @@ public class EvidenceManagementSecureDocStoreService {
         }
     }
 
+    public ResponseEntity<Resource> downloadResource(String selfHref, IdamTokens idamTokens) {
+        String documentHref = URI.create(selfHref).getPath().replaceFirst("/", "");
+        return caseDocumentClient.getDocumentBinary(idamTokens.getIdamOauth2Token(),
+                idamTokens.getServiceAuthorization(), documentHref);
+    }
+
     private void logFiles(List<MultipartFile> files) {
         files.forEach(file -> {
             log.info("Name: {}", file.getName());
