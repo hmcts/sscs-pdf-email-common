@@ -45,9 +45,7 @@ public class EvidenceManagementSecureDocStoreService {
 
     public byte[] download(String selfHref, IdamTokens idamTokens) {
         try {
-            String documentHref = URI.create(selfHref).getPath().replaceFirst("/", "");
-            ResponseEntity<Resource> responseEntity = caseDocumentClient.getDocumentBinary(idamTokens.getIdamOauth2Token(),
-                    idamTokens.getServiceAuthorization(), documentHref);
+            ResponseEntity<Resource> responseEntity = downloadResource(selfHref, idamTokens);
 
             ByteArrayResource resource = (ByteArrayResource) responseEntity.getBody();
             return (resource != null) ? resource.getByteArray() : new byte[0];
