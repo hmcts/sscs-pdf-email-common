@@ -133,7 +133,7 @@ public class PdfStoreService {
             try {
                 return evidenceManagementSecureDocStoreService.download(href, idamService.getIdamTokens());
             } catch (FeignException e) {
-                log.info("Download from secure docstore failed for file {}: ", href, e);
+                log.info("Download from secure docstore failed for file {} with message {} : ", href, e.getMessage());
                 log.info("Downloading file {} from docstore", href);
                 return evidenceManagementService.download(URI.create(href), DM_STORE_USER_ID);
             }
