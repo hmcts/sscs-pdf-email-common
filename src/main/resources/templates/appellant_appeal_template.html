@@ -223,7 +223,13 @@
     <dl class="govuk-check-your-answers">
         <div>
             <dt class="cya-question">Name</dt>
-            <dd class="cya-answer">{{ PdfWrapper.repFullName | default('Not provided') }}</dd>
+            <dd class="cya-answer">
+                {% if PdfWrapper.repFullName is defined and PdfWrapper.repFullName != "null null null" %}
+                {{ PdfWrapper.repFullName }}
+                {% else %}
+                Not provided
+                {% endif %}
+            </dd>
         </div>
 
         <div>
