@@ -50,7 +50,7 @@ public class EvidenceManagementSecureDocStoreService {
             ByteArrayResource resource = (ByteArrayResource) responseEntity.getBody();
             return (resource != null) ? resource.getByteArray() : new byte[0];
         } catch (HttpClientErrorException httpClientErrorException) {
-            log.error("Secure Doc Store service failed to download document...", httpClientErrorException);
+            log.info("Secure Doc Store service failed to download document message {}", httpClientErrorException.getMessage());
             throw new UnsupportedDocumentTypeException(httpClientErrorException);
         }
     }
