@@ -388,7 +388,8 @@
                 ydw
                 {% else %}
                 nac ydw
-                {% endif %}</dd>
+                {% endif %}
+            </dd>
         </div>
         {% if PdfWrapper.sscsCaseData.appeal.hearingSubtype.wantsHearingTypeTelephone == 'Yes' %}
         <div>
@@ -402,7 +403,8 @@
                 ydw
                 {% else %}
                 nac ydw
-                {% endif %}</dd>
+                {% endif %}
+            </dd>
         </div>
         {% if PdfWrapper.sscsCaseData.appeal.hearingSubtype.wantsHearingTypeVideo == 'Yes' %}
         <div>
@@ -412,7 +414,12 @@
         {% endif %}
         <div>
             <dt class="cya-question">Wyneb yn wyneb</dt>
-            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.hearingSubtype.wantsHearingTypeFaceToFace }}</dd>
+            <dd class="cya-answer">{% if PdfWrapper.sscsCaseData.appeal.hearingSubtype.wantsHearingTypeFaceToFace == 'Yes' %}
+                ydw
+                {% else %}
+                nac ydw
+                {% endif %}
+            </dd>
         </div>
     </dl>
 
