@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import static java.util.Collections.singletonList;
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPLOAD_DOCUMENT;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
@@ -10,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocumentDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocumentTranslationStatus;
 import uk.gov.hmcts.reform.sscs.ccd.exception.CcdException;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
+import uk.gov.hmcts.reform.sscs.domain.UpdateDocParams;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 
 @Service
@@ -30,6 +33,8 @@ public class CcdPdfService {
 
     private static final String APPELLANT_STATEMENT = "Appellant statement ";
     private static final String REPRESENTATIVE_STATEMENT = "Representative statement ";
+    private static final String OTHER_PARTY_STATEMENT = "Other party statement ";
+    private static final String OTHER_PARTY_REPRESENTATIVE_STATEMENT = "Other party representative statement ";
     public static final String YES = "Yes";
 
     @Autowired
@@ -43,6 +48,11 @@ public class CcdPdfService {
                                         IdamTokens idamTokens) {
         return updateAndMerge(fileName, pdf, caseId, caseData, idamTokens, "Uploaded document into SSCS",
                 null);
+    }
+
+    public SscsCaseData mergeDocIntoCcd(UpdateDocParams updateDocParams, IdamTokens idamTokens) {
+        updateDoc(updateDocParams);
+        return updateCaseInCcd(updateDocParams.getCaseData(), updateDocParams.getCaseId(), UPLOAD_DOCUMENT.getCcdType(), idamTokens, "Uploaded document into SSCS").getData();
     }
 
     public SscsCaseData mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData,
@@ -67,26 +77,36 @@ public class CcdPdfService {
     }
 
     public SscsCaseData updateDoc(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, String documentType, SscsDocumentTranslationStatus documentTranslationStatus) {
-        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName, documentType, documentTranslationStatus);
+        return this.updateDoc(UpdateDocParams.builder().fileName(fileName)
+                .pdf(pdf)
+                .caseId(caseId)
+                .caseData(caseData)
+                .documentType(documentType)
+                .documentTranslationStatus(documentTranslationStatus)
+                .build());
+    }
 
-        if (!pdfDocuments.isEmpty()) {
-            log.info("Case {} PDF stored in DM for benefit type {}", caseId,
-                    caseData.getAppeal().getBenefitType().getCode());
+    public SscsCaseData updateDoc(UpdateDocParams updateDocParams) {
+        SscsDocument pdfDocuments = pdfStoreService.storeDocument(updateDocParams);
+
+        if (pdfDocuments == null) {
+            log.info("Case {} PDF stored in DM for benefit type {}", updateDocParams.getCaseId(),
+                    updateDocParams.getCaseData().getAppeal().getBenefitType().getCode());
         }
 
-        if (caseId == null) {
+        if (updateDocParams.getCaseId() == null) {
             log.info("caseId is empty - skipping step to update CCD with PDF");
-            return caseData;
+            return updateDocParams.getCaseData();
         }
-        updateCaseDataWithNewDoc(fileName, caseData, pdfDocuments);
-        if (documentTranslationStatus != null && documentTranslationStatus.equals(SscsDocumentTranslationStatus.TRANSLATION_REQUIRED)) {
-            caseData.setTranslationWorkOutstanding(YES);
+        updateCaseDataWithNewDoc(updateDocParams.getFileName(), updateDocParams.getCaseData(), pdfDocuments == null ? null : singletonList(pdfDocuments));
+        if (SscsDocumentTranslationStatus.TRANSLATION_REQUIRED.equals(updateDocParams.getDocumentTranslationStatus())) {
+            updateDocParams.getCaseData().setTranslationWorkOutstanding(YES);
         }
-        return caseData;
+        return updateDocParams.getCaseData();
     }
 
     private void updateCaseDataWithNewDoc(String fileName, SscsCaseData caseData, List<SscsDocument> pdfDocuments) {
-        if (fileName.startsWith(APPELLANT_STATEMENT) || fileName.startsWith(REPRESENTATIVE_STATEMENT)) {
+        if (fileName.startsWith(APPELLANT_STATEMENT) || fileName.startsWith(REPRESENTATIVE_STATEMENT) ||  fileName.startsWith(OTHER_PARTY_STATEMENT) || fileName.startsWith(OTHER_PARTY_REPRESENTATIVE_STATEMENT)) {
             caseData.setScannedDocuments(ListUtils.union(emptyIfNull(caseData.getScannedDocuments()),
                     buildScannedDocListFromSscsDoc(pdfDocuments)));
             caseData.setEvidenceHandled(NO.getValue());
@@ -97,7 +117,7 @@ public class CcdPdfService {
     }
 
     private List<ScannedDocument> buildScannedDocListFromSscsDoc(List<SscsDocument> pdfDocuments) {
-        if (pdfDocuments.isEmpty()) {
+        if (CollectionUtils.isEmpty(pdfDocuments)) {
             return Collections.emptyList();
         }
         SscsDocumentDetails pdfDocDetails = pdfDocuments.get(0).getValue();
@@ -114,10 +134,12 @@ public class CcdPdfService {
                         .fileName(pdfDocDetails.getDocumentFileName())
                         .url(pdfDocDetails.getDocumentLink())
                         .scannedDate(dateAdded)
+                        .originalSenderOtherPartyId(pdfDocDetails.getOriginalSenderOtherPartyId())
+                        .originalSenderOtherPartyName(pdfDocDetails.getOriginalSenderOtherPartyName())
                         .type("other")
                         .build())
                 .build();
-        return Collections.singletonList(scannedDoc);
+        return singletonList(scannedDoc);
     }
 
     private String getDocumentDateAdded(SscsDocumentDetails pdfDocDetails) {

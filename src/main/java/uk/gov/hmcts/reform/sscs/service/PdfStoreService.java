@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.DocumentLink;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocument;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocumentDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocumentTranslationStatus;
+import uk.gov.hmcts.reform.sscs.domain.UpdateDocParams;
 import uk.gov.hmcts.reform.sscs.domain.pdf.ByteArrayMultipartFile;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
@@ -72,57 +73,73 @@ public class PdfStoreService {
     }
 
     public SscsDocument storeDocument(byte[] content, String fileName, String documentType, SscsDocumentTranslationStatus documentTranslationStatus) {
+        return storeDocument(UpdateDocParams.builder().pdf(content).fileName(fileName).documentType(documentType)
+                .documentTranslationStatus(documentTranslationStatus).build());
+    }
+
+    public SscsDocument storeDocument(UpdateDocParams updateDocParams) {
         if (secureDocStoreEnabled) {
-            return storeSecureDocStore(content, fileName, documentType, documentTranslationStatus);
+            return storeSecureDocStore(updateDocParams);
         }
-        ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(content).name(fileName)
+        ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(updateDocParams.getPdf()).name(updateDocParams.getFileName())
                 .contentType(APPLICATION_PDF).build();
         try {
-            log.info("Storing file {} of type {} into docstore", fileName, documentType);
+            log.info("Storing file {} of type {} into docstore", updateDocParams.getFileName(), updateDocParams.getDocumentType());
             uk.gov.hmcts.reform.document.domain.UploadResponse upload = evidenceManagementService.upload(singletonList(file), "sscs");
             String location = upload.getEmbedded().getDocuments().get(0).links.self.href;
 
             DocumentLink documentLink = DocumentLink.builder().documentUrl(location).build();
             SscsDocumentDetails sscsDocumentDetails = SscsDocumentDetails.builder()
-                    .documentFileName(fileName)
+                    .documentFileName(updateDocParams.getFileName())
                     .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
                     .documentLink(documentLink)
-                    .documentType(documentType)
-                    .documentTranslationStatus(documentTranslationStatus)
+                    .documentType(updateDocParams.getDocumentType())
+                    .documentTranslationStatus(updateDocParams.getDocumentTranslationStatus())
+                    .originalSenderOtherPartyId(updateDocParams.getOtherPartyId())
+                    .originalSenderOtherPartyName(updateDocParams.getOtherPartyName())
                     .build();
-            SscsDocument pdfDocument = SscsDocument.builder().value(sscsDocumentDetails).build();
 
-            return pdfDocument;
+            return SscsDocument.builder().value(sscsDocumentDetails).build();
         } catch (RestClientException e) {
-            log.error("Failed to store pdf document but carrying on [" + fileName + "]", e);
+            log.error("Failed to store pdf document but carrying on [" + updateDocParams.getFileName() + "]", e);
             return null;
         }
     }
 
     public SscsDocument storeSecureDocStore(byte[] content, String fileName, String documentType, SscsDocumentTranslationStatus documentTranslationStatus) {
-        ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(content).name(fileName)
+        return storeSecureDocStore(UpdateDocParams.builder()
+                .pdf(content)
+                .fileName(fileName)
+                .documentType(documentType)
+                .documentTranslationStatus(documentTranslationStatus)
+                .build());
+    }
+
+    public SscsDocument storeSecureDocStore(UpdateDocParams updateDocParams) {
+        ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(updateDocParams.getPdf()).name(updateDocParams.getFileName())
                 .contentType(APPLICATION_PDF).build();
         try {
-            log.info("Storing file {} of type {} into secure docstore", fileName, documentType);
+            log.info("Storing file {} of type {} into secure docstore", updateDocParams.getFileName(), updateDocParams.getDocumentType());
             IdamTokens idamTokens = idamService.getIdamTokens();
             UploadResponse upload = evidenceManagementSecureDocStoreService.upload(singletonList(file), idamTokens);
             String location = upload.getDocuments().get(0).links.self.href;
             String hash = upload.getDocuments().get(0).hashToken;
 
             DocumentLink documentLink = DocumentLink.builder().documentUrl(location).documentBinaryUrl(location + "/binary")
-                    .documentFilename(fileName).documentHash(hash).build();
+                    .documentFilename(updateDocParams.getFileName()).documentHash(hash).build();
             SscsDocumentDetails sscsDocumentDetails = SscsDocumentDetails.builder()
-                    .documentFileName(fileName)
+                    .documentFileName(updateDocParams.getFileName())
                     .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
                     .documentLink(documentLink)
-                    .documentType(documentType)
-                    .documentTranslationStatus(documentTranslationStatus)
+                    .documentType(updateDocParams.getDocumentType())
+                    .documentTranslationStatus(updateDocParams.getDocumentTranslationStatus())
+                    .originalSenderOtherPartyId(updateDocParams.getOtherPartyId())
+                    .originalSenderOtherPartyName(updateDocParams.getOtherPartyName())
                     .build();
-            SscsDocument pdfDocument = SscsDocument.builder().value(sscsDocumentDetails).build();
 
-            return pdfDocument;
+            return SscsDocument.builder().value(sscsDocumentDetails).build();
         } catch (RestClientException e) {
-            log.error("Failed to store pdf document but carrying on [" + fileName + "]", e);
+            log.error("Failed to store pdf document but carrying on [" + updateDocParams.getFileName() + "]", e);
             return null;
         }
     }
