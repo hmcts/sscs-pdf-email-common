@@ -113,7 +113,7 @@ dependencies {
     compile group: 'org.apache.tika', name: 'tika-core', version: '2.2.0'
     compile group: 'org.apache.tika', name: 'tika-parsers', version: '2.2.0'
     compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.16'
-    compile group: 'com.twelvemonkeys.imageio', name: 'imageio-tiff', version: '3.8.0'
+    compile group: 'com.twelvemonkeys.imageio', name: 'imageio-tiff', version: '3.8.1'
     compile group: 'org.apache.pdfbox', name: 'xmpbox', version: '2.0.25'
     compile group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.24'
     compile group: 'pl.touk', name: 'throwing-function', version: '1.3'
