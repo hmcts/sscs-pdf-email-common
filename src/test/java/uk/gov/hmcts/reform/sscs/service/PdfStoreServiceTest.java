@@ -10,7 +10,6 @@ import static org.springframework.http.MediaType.APPLICATION_PDF;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.document.domain.Document;
 import uk.gov.hmcts.reform.document.domain.UploadResponse;
@@ -38,32 +37,12 @@ public class PdfStoreServiceTest {
         evidenceManagementService = mock(EvidenceManagementService.class);
         evidenceManagementSecureDocStoreService = mock(EvidenceManagementSecureDocStoreService.class);
         idamService = mock(IdamService.class);
-        pdfStoreService = new PdfStoreService(evidenceManagementService, evidenceManagementSecureDocStoreService, false, idamService);
-        pdfStoreSecureDocStore = new PdfStoreService(evidenceManagementService, evidenceManagementSecureDocStoreService, true, idamService);
+        pdfStoreService = new PdfStoreService(evidenceManagementService, evidenceManagementSecureDocStoreService, idamService);
+        pdfStoreSecureDocStore = new PdfStoreService(evidenceManagementService, evidenceManagementSecureDocStoreService, idamService);
 
         files = singletonList(ByteArrayMultipartFile.builder().content(content).name(filename).contentType(APPLICATION_PDF).build());
     }
 
-    @Test
-    public void uploadsPdfAndExtractsLink() {
-        UploadResponse uploadResponse = createUploadResponse();
-        when(evidenceManagementService.upload(files, SSCS_USER)).thenReturn(uploadResponse);
-
-        List<SscsDocument> documents = pdfStoreService.store(content, filename, "appellantEvidence");
-
-        assertThat(documents.size(), is(1));
-        SscsDocumentDetails value = documents.get(0).getValue();
-        assertThat(value.getDocumentFileName(), is(filename));
-        assertThat(value.getDocumentLink().getDocumentUrl(), is(expectedHref));
-    }
-
-    @Test
-    public void cannotConnectToDocumentStore() {
-        when(evidenceManagementService.upload(files, SSCS_USER)).thenThrow(new RestClientException("Cannot connect"));
-        List<SscsDocument> documents = pdfStoreService.store(content, filename, "appellantEvidence");
-
-        assertThat(documents.size(), is(0));
-    }
 
     @Test
     public void uploadsPdfAndExtractsLinkForSecureDocStore() {
