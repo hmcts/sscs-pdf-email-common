@@ -11,7 +11,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
@@ -29,18 +28,15 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 public class PdfStoreService {
     private final EvidenceManagementService evidenceManagementService;
     private final EvidenceManagementSecureDocStoreService evidenceManagementSecureDocStoreService;
-    private final boolean secureDocStoreEnabled;
     private final IdamService idamService;
     static final String DM_STORE_USER_ID = "sscs";
 
     @Autowired
     public PdfStoreService(EvidenceManagementService evidenceManagementService,
                            EvidenceManagementSecureDocStoreService evidenceManagementSecureDocStoreService,
-                           @Value("${feature.secure-doc-store.enabled:false}") boolean secureDocStoreEnabled,
                            IdamService idamService) {
         this.evidenceManagementService = evidenceManagementService;
         this.evidenceManagementSecureDocStoreService = evidenceManagementSecureDocStoreService;
-        this.secureDocStoreEnabled = secureDocStoreEnabled;
         this.idamService = idamService;
     }
 
@@ -78,32 +74,7 @@ public class PdfStoreService {
     }
 
     public SscsDocument storeDocument(UpdateDocParams updateDocParams) {
-        if (secureDocStoreEnabled) {
-            return storeSecureDocStore(updateDocParams);
-        }
-        ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(updateDocParams.getPdf()).name(updateDocParams.getFileName())
-                .contentType(APPLICATION_PDF).build();
-        try {
-            log.info("Storing file {} of type {} into docstore", updateDocParams.getFileName(), updateDocParams.getDocumentType());
-            uk.gov.hmcts.reform.document.domain.UploadResponse upload = evidenceManagementService.upload(singletonList(file), "sscs");
-            String location = upload.getEmbedded().getDocuments().get(0).links.self.href;
-
-            DocumentLink documentLink = DocumentLink.builder().documentUrl(location).build();
-            SscsDocumentDetails sscsDocumentDetails = SscsDocumentDetails.builder()
-                    .documentFileName(updateDocParams.getFileName())
-                    .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
-                    .documentLink(documentLink)
-                    .documentType(updateDocParams.getDocumentType())
-                    .documentTranslationStatus(updateDocParams.getDocumentTranslationStatus())
-                    .originalSenderOtherPartyId(updateDocParams.getOtherPartyId())
-                    .originalSenderOtherPartyName(updateDocParams.getOtherPartyName())
-                    .build();
-
-            return SscsDocument.builder().value(sscsDocumentDetails).build();
-        } catch (RestClientException e) {
-            log.error("Failed to store pdf document but carrying on [" + updateDocParams.getFileName() + "]", e);
-            return null;
-        }
+        return storeSecureDocStore(updateDocParams);
     }
 
     public SscsDocument storeSecureDocStore(byte[] content, String fileName, String documentType, SscsDocumentTranslationStatus documentTranslationStatus) {
@@ -145,18 +116,15 @@ public class PdfStoreService {
     }
 
     public byte[] download(String href) {
-        if (secureDocStoreEnabled) {
-            log.info("Downloading file {} from secure docstore", href);
-            try {
-                return evidenceManagementSecureDocStoreService.download(href, idamService.getIdamTokens());
-            } catch (FeignException e) {
-                log.info("Download from secure docstore failed for file {} with message {} : ", href, e.getMessage());
-                log.info("Downloading file {} from docstore", href);
-                return evidenceManagementService.download(URI.create(href), DM_STORE_USER_ID);
-            }
-        } else {
+        log.info("Downloading file {} from secure docstore", href);
+        try {
+            return evidenceManagementSecureDocStoreService.download(href, idamService.getIdamTokens());
+        } catch (FeignException e) {
+            log.info("Download from secure docstore failed for file {} with message {} : ", href, e.getMessage());
             log.info("Downloading file {} from docstore", href);
+            //this fallback is required until all services are uploading via new API
             return evidenceManagementService.download(URI.create(href), DM_STORE_USER_ID);
         }
+
     }
 }
