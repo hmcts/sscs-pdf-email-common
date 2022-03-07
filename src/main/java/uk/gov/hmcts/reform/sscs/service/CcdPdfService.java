@@ -4,6 +4,7 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPLOAD_DOCUMENT;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,7 +36,6 @@ public class CcdPdfService {
     private static final String REPRESENTATIVE_STATEMENT = "Representative statement ";
     private static final String OTHER_PARTY_STATEMENT = "Other party statement ";
     private static final String OTHER_PARTY_REPRESENTATIVE_STATEMENT = "Other party representative statement ";
-    public static final String YES = "Yes";
 
     @Autowired
     private PdfStoreService pdfStoreService;
@@ -109,7 +109,7 @@ public class CcdPdfService {
         if (fileName.startsWith(APPELLANT_STATEMENT) || fileName.startsWith(REPRESENTATIVE_STATEMENT) ||  fileName.startsWith(OTHER_PARTY_STATEMENT) || fileName.startsWith(OTHER_PARTY_REPRESENTATIVE_STATEMENT)) {
             caseData.setScannedDocuments(ListUtils.union(emptyIfNull(caseData.getScannedDocuments()),
                     buildScannedDocListFromSscsDoc(pdfDocuments)));
-            caseData.setEvidenceHandled(NO.getValue());
+            caseData.setEvidenceHandled(NO);
         } else {
             caseData.setSscsDocument(ListUtils.union(emptyIfNull(caseData.getSscsDocument()),
                     emptyIfNull(pdfDocuments)));

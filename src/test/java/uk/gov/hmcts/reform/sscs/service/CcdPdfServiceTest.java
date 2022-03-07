@@ -118,7 +118,7 @@ public class CcdPdfServiceTest {
                 anyString(), any(IdamTokens.class));
 
         assertThat(caseDataCaptor.getValue().getScannedDocuments().size(), is(expectedNumberOfScannedDocs));
-        assertThat(caseDataCaptor.getValue().getEvidenceHandled(), is(NO.getValue()));
+        assertThat(caseDataCaptor.getValue().getEvidenceHandled(), is(NO));
         if (!newStoredSscsDocuments.isEmpty()) {
             String expectedFilename = newStoredSscsDocuments.get(0).getValue().getDocumentFileName();
             Optional<ScannedDocument> scannedDocument = caseDataCaptor.getValue().getScannedDocuments().stream()
