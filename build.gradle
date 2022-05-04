@@ -27,7 +27,6 @@ repositories {
 
     mavenLocal()
     mavenCentral()
-    jcenter()
     maven { url 'https://jitpack.io' }
 
     maven {
@@ -92,14 +91,20 @@ def versions = [
 ]
 
 dependencies {
+    modules {
+        module("uk.gov.hmcts.reform:java-logging") {
+            replacedBy("com.github.hmcts:java-logging", "jCenter removal - artifacts moved to Jitpack")
+        }
+    }
+    
     compile group: 'com.github.hmcts', name: 'java-logging', version: versions.reformLogging
     compile group: 'com.github.hmcts', name: 'cmc-pdf-service-client', version: '7.0.0'
 
-    implementation 'com.github.hmcts:sscs-common:4.6.45'
+    implementation 'com.github.hmcts:sscs-common:4.8.7'
 
     implementation("com.github.hmcts:ccd-case-document-am-client:1.7.1")
     // Remove this dependency once the secure doc-store is in use
-    compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '7.0.0'
+    compile group: 'com.github.hmcts', name: 'document-management-client', version: '7.0.0'
 
     compile group: 'org.springframework', name: 'spring-context-support', version: '5.3.14'
     compile group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
