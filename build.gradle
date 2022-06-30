@@ -88,7 +88,7 @@ publishing {
 
 def versions = [
     reformLogging: '5.1.7',
-    sscsCommon: '4.12.3',
+    sscsCommon: '4.12.5',
 ]
 
 dependencies {
