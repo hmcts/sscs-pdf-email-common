@@ -127,8 +127,6 @@ dependencies {
     implementation group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
 
-    implementation group: 'com.github.everit-org.json-schema', name: 'org.everit.json.schema', version: '1.14.0'
-    implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
     //code needs changing if this version number gets bumped
     implementation group: 'com.github.sps.junidecode', name: 'junidecode', version: '0.3'
     implementation group: 'org.apache.tika', name: 'tika-core', version: '2.4.1'
@@ -150,12 +148,10 @@ dependencies {
     testImplementation group: 'org.projectlombok', name:'lombok', version: '1.18.22'
     testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.22'
 
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.1'
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.9.1'
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.9.1'
-    testImplementation group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.9.1'
-    testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.9.1'
-    testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.9.1'
+    testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.23.1'
+
+    testImplementation platform(group: 'org.junit', name: 'junit-bom', version: '5.9.1')
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter'
 
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.12.4'
     testImplementation group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
@@ -198,5 +194,11 @@ dependencyManagement {
         dependencySet(group: 'org.springframework.security', version: '5.7.3') {
             entry 'spring-security-crypto'
         }
+
+        //CVE-2020-13956
+        dependency group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+
+        //CVE-2020-29582, CVE-2022-24329
+        dependency group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.7.20'
     }
 }
