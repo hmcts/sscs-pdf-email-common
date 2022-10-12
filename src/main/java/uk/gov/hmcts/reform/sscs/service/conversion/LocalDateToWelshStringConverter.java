@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 @Component
 public final class LocalDateToWelshStringConverter {
 
-    private LocalDateToWelshStringConverter() {}
+    private LocalDateToWelshStringConverter() {
+
+    }
 
     static Map<Integer,String> months = new HashMap<>();
 
