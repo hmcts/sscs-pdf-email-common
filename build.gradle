@@ -122,6 +122,8 @@ dependencies {
     // Remove this dependency once the secure doc-store is in use
     implementation group: 'com.github.hmcts', name: 'document-management-client', version: '7.0.1'
 
+    implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '4.0.3'
+
     implementation group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
 
@@ -139,6 +141,8 @@ dependencies {
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.3'
 
     implementation group: 'org.yaml', name: 'snakeyaml', version: '1.33'
+
+    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
 
     implementation group: 'org.projectlombok', name:'lombok', version: '1.18.22'
     annotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.22'
