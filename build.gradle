@@ -6,7 +6,6 @@ plugins {
     id 'pmd'
     id 'jacoco'
     id 'io.spring.dependency-management' version '1.0.14.RELEASE'
-    id 'maven'
     id "org.owasp.dependencycheck" version "7.2.1"
 }
 
@@ -36,12 +35,6 @@ repositories {
 
 // region static code analysis
 
-checkstyle {
-    maxWarnings = 0
-    // need to set configDir to rootDir otherwise submodule will use submodule/config/checkstyle
-    configDir = new File(rootDir, 'config/checkstyle')
-}
-
 pmd {
     toolVersion = "6.50.0"
     ignoreFailures = true
@@ -57,7 +50,7 @@ dependencyCheck {
     failBuildOnCVSS = 7.0
     suppressionFile = 'config/owasp/suppressions.xml'
 
-    cveValidForHours = 24
+    cveValidForHours = 4
 
     analyzers {
         retirejs {
@@ -116,7 +109,7 @@ dependencies {
     implementation group: 'com.github.hmcts', name: 'java-logging', version: '5.1.9'
     implementation group: 'com.github.hmcts', name: 'cmc-pdf-service-client', version: '7.0.1'
 
-    implementation group: 'com.github.hmcts', name: 'sscs-common', version: '4.19.0'
+    implementation group: 'com.github.hmcts', name: 'sscs-common', version: '4.20.0'
 
     implementation group: 'com.github.hmcts', name: 'ccd-case-document-am-client', version: '1.7.3'
     // Remove this dependency once the secure doc-store is in use
