@@ -150,7 +150,7 @@ dependencies {
     testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.9.1'
     testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.9.1'
 
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.12.4'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.1.1'
     testImplementation group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
     testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: '2.2'
 }
