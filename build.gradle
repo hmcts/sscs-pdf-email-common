@@ -168,7 +168,7 @@ dependencyManagement {
             entry 'spring-boot-starter-validation'
         }
 
-        dependencySet(group: 'org.springframework', version: '5.3.23') {
+        dependencySet(group: 'org.springframework', version: '5.3.26') {
             entry 'spring-aop'
             entry 'spring-aspects'
             entry 'spring-beans'
