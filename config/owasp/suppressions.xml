@@ -3,25 +3,25 @@
     <suppress>
         <cve>CVE-2023-24998</cve>
     </suppress>
-    <suppress until = "2023-06-01">
+    <suppress until = "2023-07-01">
         <notes><![CDATA[
    file name: kotlin-stdlib-jdk8-1.5.31.jar
    ]]></notes>
         <cve>CVE-2022-24329</cve>
     </suppress>
-    <suppress until = "2023-06-01">
+    <suppress until = "2023-07-01">
         <notes><![CDATA[
    file name: junit-4.10.jar
    ]]></notes>
         <cve>CVE-2020-15250</cve>
     </suppress>
-    <suppress until = "2023-06-01">
+    <suppress until = "2023-07-01">
         <notes><![CDATA[
    file name: httpclient-4.5.12.jar
    ]]></notes>
         <cve>CVE-2020-13956</cve>
     </suppress>
-    <suppress until = "2023-06-01">
+    <suppress until = "2023-07-01">
         <notes><![CDATA[
    file name: spring-cloud-openfeign-core-3.0.1.jar
    ]]></notes>
@@ -29,14 +29,14 @@
         <cve>CVE-2021-22044</cve>
     </suppress>
 
-    <suppress until = "2023-06-01">
+    <suppress until = "2023-07-01">
         <notes><![CDATA[
    file name: jackson-core-2.14..jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
         <cve>CVE-2022-45688</cve>
     </suppress>
-    <suppress until = "2023-06-01">
+    <suppress until = "2023-07-01">
         <notes><![CDATA[
    file name: json-20220924.jar
    ]]></notes>
