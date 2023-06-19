@@ -82,6 +82,8 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+
 artifacts {
     archives sourcesJar
     archives javadocJar
@@ -164,7 +166,7 @@ dependencyManagement {
         dependency group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.70'
         dependency group: 'commons-io', name: 'commons-io', version: '2.11.0'
 
-        dependencySet(group: 'org.springframework.boot', version: '2.7.11') {
+        dependencySet(group: 'org.springframework.boot', version: '2.7.12') {
             entry 'spring-boot-starter-web'
             entry 'spring-boot-starter-actuator'
             entry 'spring-boot-starter-aop'
