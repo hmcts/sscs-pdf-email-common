@@ -3,13 +3,13 @@ name: Java CI
 on:
   pull_request:
     branches:
-    - master
+      - master
   push:
     branches:
-    - master
-    - refs/tags/*
+      - master
+      - refs/tags/*
     tags:
-    - '*'
+      - '*'
 
 jobs:
   build:

@@ -1,5 +1,5 @@
 {
   "extends": [
-    "github>hmcts/sscs-common//.github/sscs-renovate.json"
+    "github>hmcts/sscs-pdf-email-common//.github/sscs-renovate.json"
   ]
 }
