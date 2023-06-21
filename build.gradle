@@ -98,13 +98,13 @@ publishing {
 }
 
 dependencies {
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.15.0'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.0'
-    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.15.0'
-    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.15.0'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.15.2'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.2'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.15.2'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.15.2'
 
-    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.4.7'
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.7'
+    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.4.8'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.8'
 
     implementation group: 'com.github.hmcts', name: 'java-logging', version: '5.1.9'
     implementation group: 'com.github.hmcts', name: 'cmc-pdf-service-client', version: '7.0.1'
@@ -124,8 +124,8 @@ dependencies {
     implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
     //code needs changing if this version number gets bumped
     implementation group: 'com.github.sps.junidecode', name: 'junidecode', version: '0.3'
-    implementation group: 'org.apache.tika', name: 'tika-core', version: '2.7.0'
-    implementation group: 'org.apache.tika', name: 'tika-parsers', version: '2.7.0'
+    implementation group: 'org.apache.tika', name: 'tika-core', version: '2.8.0'
+    implementation group: 'org.apache.tika', name: 'tika-parsers', version: '2.8.0'
     implementation group: 'net.coobird', name: 'thumbnailator', version: '0.4.19'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-tiff', version: '3.9.4'
     implementation group: 'org.apache.pdfbox', name: 'xmpbox', version: '2.0.28'
@@ -137,11 +137,11 @@ dependencies {
 
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
 
-    implementation group: 'org.projectlombok', name:'lombok', version: '1.18.26'
-    annotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.26'
+    implementation group: 'org.projectlombok', name:'lombok', version: '1.18.28'
+    annotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.28'
 
-    testImplementation group: 'org.projectlombok', name:'lombok', version: '1.18.26'
-    testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.26'
+    testImplementation group: 'org.projectlombok', name:'lombok', version: '1.18.28'
+    testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.28'
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.3'
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.9.3'
@@ -150,7 +150,7 @@ dependencies {
     testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.9.3'
     testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.9.3'
 
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.3.1'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.4.0'
     testImplementation group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
     testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: '2.2'
 }
@@ -159,16 +159,16 @@ dependencyManagement {
     dependencies {
         // resolves: CVE-2020-28052
         dependency group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.70'
-        dependency group: 'commons-io', name: 'commons-io', version: '2.11.0'
+        dependency group: 'commons-io', name: 'commons-io', version: '2.13.0'
 
-        dependencySet(group: 'org.springframework.boot', version: '2.7.11') {
+        dependencySet(group: 'org.springframework.boot', version: '2.7.12') {
             entry 'spring-boot-starter-web'
             entry 'spring-boot-starter-actuator'
             entry 'spring-boot-starter-aop'
             entry 'spring-boot-starter-validation'
         }
 
-        dependencySet(group: 'org.springframework', version: '5.3.27') {
+        dependencySet(group: 'org.springframework', version: '5.3.28') {
             entry 'spring-aop'
             entry 'spring-aspects'
             entry 'spring-beans'
@@ -188,7 +188,7 @@ dependencyManagement {
         }
 
         //CVE-2021-22112
-        dependencySet(group: 'org.springframework.security', version: '5.8.3') {
+        dependencySet(group: 'org.springframework.security', version: '5.8.4') {
             entry 'spring-security-crypto'
         }
     }
