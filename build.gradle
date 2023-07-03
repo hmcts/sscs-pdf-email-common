@@ -6,7 +6,7 @@ plugins {
     id 'pmd'
     id 'jacoco'
     id 'io.spring.dependency-management' version '1.1.0'
-    id "org.owasp.dependencycheck" version "8.2.1"
+    id "org.owasp.dependencycheck" version "8.3.1"
 }
 
 jacoco {
@@ -103,13 +103,13 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.15.2'
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.15.2'
 
-    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.4.7'
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.7'
+    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.4.8'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.8'
 
     implementation group: 'com.github.hmcts', name: 'java-logging', version: '5.1.9'
     implementation group: 'com.github.hmcts', name: 'cmc-pdf-service-client', version: '7.0.1'
 
-    implementation group: 'com.github.hmcts', name: 'sscs-common', version: '4.26.0'
+    implementation group: 'com.github.hmcts', name: 'sscs-common', version: '4.26.1'
 
     implementation group: 'com.github.hmcts', name: 'ccd-case-document-am-client', version: '1.7.3'
     // Remove this dependency once the secure doc-store is in use
@@ -124,9 +124,9 @@ dependencies {
     implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
     //code needs changing if this version number gets bumped
     implementation group: 'com.github.sps.junidecode', name: 'junidecode', version: '0.3'
-    implementation group: 'org.apache.tika', name: 'tika-core', version: '2.7.0'
-    implementation group: 'org.apache.tika', name: 'tika-parsers', version: '2.7.0'
-    implementation group: 'net.coobird', name: 'thumbnailator', version: '0.4.19'
+    implementation group: 'org.apache.tika', name: 'tika-core', version: '2.8.0'
+    implementation group: 'org.apache.tika', name: 'tika-parsers', version: '2.8.0'
+    implementation group: 'net.coobird', name: 'thumbnailator', version: '0.4.20'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-tiff', version: '3.9.4'
     implementation group: 'org.apache.pdfbox', name: 'xmpbox', version: '2.0.28'
     implementation group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.28'
@@ -150,7 +150,7 @@ dependencies {
     testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.9.3'
     testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.9.3'
 
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.3.1'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.4.0'
     testImplementation group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
     testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: '2.2'
 }
@@ -159,7 +159,7 @@ dependencyManagement {
     dependencies {
         // resolves: CVE-2020-28052
         dependency group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.70'
-        dependency group: 'commons-io', name: 'commons-io', version: '2.11.0'
+        dependency group: 'commons-io', name: 'commons-io', version: '2.13.0'
 
         dependencySet(group: 'org.springframework.boot', version: '2.7.11') {
             entry 'spring-boot-starter-web'
