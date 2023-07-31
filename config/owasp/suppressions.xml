@@ -8,7 +8,7 @@
         <cve>CVE-2023-3635</cve>
         <cve>CVE-2023-3782</cve>
     </suppress>
-    <suppress until = "2023-09-01">git st
+    <suppress until = "2023-09-01">
         <notes><![CDATA[
    file name: junit-4.10.jar
    ]]></notes>
