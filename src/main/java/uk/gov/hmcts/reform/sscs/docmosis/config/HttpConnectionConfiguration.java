@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.sscs.docmosis.config;
 
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -15,8 +13,6 @@ import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.logging.httpcomponents.OutboundRequestIdSettingInterceptor;
-import uk.gov.hmcts.reform.logging.httpcomponents.OutboundRequestLoggingInterceptor;
 
 @Configuration
 @ConditionalOnProperty("http.connect.timeout")
@@ -53,9 +49,6 @@ public class HttpConnectionConfiguration {
         CloseableHttpClient client = HttpClientBuilder
                 .create()
                 .useSystemProperties()
-                .addInterceptorFirst(new OutboundRequestIdSettingInterceptor())
-                .addInterceptorFirst((HttpRequestInterceptor) new OutboundRequestLoggingInterceptor())
-                .addInterceptorLast((HttpResponseInterceptor) new OutboundRequestLoggingInterceptor())
                 .setDefaultRequestConfig(config)
                 .build();
 
