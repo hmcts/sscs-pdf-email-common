@@ -39,8 +39,13 @@ public class CcdNotificationsPdfService {
     @Autowired
     private IdamService idamService;
 
+    private static final String DEFAULT_SENDER_TYPE = "Gov Notify";
 
     public SscsCaseData mergeCorrespondenceIntoCcd(SscsCaseData sscsCaseData, Correspondence correspondence) {
+        return mergeCorrespondenceIntoCcd(sscsCaseData, correspondence, DEFAULT_SENDER_TYPE);
+    }
+
+    public SscsCaseData mergeCorrespondenceIntoCcd(SscsCaseData sscsCaseData, Correspondence correspondence, String senderType) {
         Map<String, Object> placeholders = new HashMap<>();
         placeholders.put("body", correspondence.getValue().getBody());
         placeholders.put("subject", correspondence.getValue().getSubject());
@@ -71,8 +76,9 @@ public class CcdNotificationsPdfService {
         sscsCaseData.setCorrespondence(allCorrespondence);
 
         IdamTokens idamTokens = idamService.getIdamTokens();
+        String description = String.format("Notification sent via %s", senderType);
         SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(),
-                idamTokens, "Notification sent via Gov Notify");
+                idamTokens, description);
 
         return caseDetails.getData();
     }
