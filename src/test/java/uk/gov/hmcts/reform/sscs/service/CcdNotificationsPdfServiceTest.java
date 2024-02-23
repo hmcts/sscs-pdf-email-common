@@ -92,6 +92,29 @@ public class CcdNotificationsPdfServiceTest {
     }
 
     @Test
+    public void shouldSuccessfullyMergeCorrespondenceIntoCcdV2() {
+        Long caseId = Long.valueOf(caseData.getCcdCaseId());
+        Correspondence correspondence = Correspondence.builder().value(
+                CorrespondenceDetails.builder()
+                        .sentOn("22 Jan 2021 11:00")
+                        .from("from")
+                        .to("to")
+                        .body("the body")
+                        .subject("a subject")
+                        .eventType("event")
+                        .correspondenceType(CorrespondenceType.Email)
+                        .build()).build();
+
+        when(ccdService.getByCaseId(eq(caseId), eq(IdamTokens.builder().build()))).thenReturn(SscsCaseDetails.builder().data(caseData).build());
+
+        service.mergeCorrespondenceIntoCcdV2(caseId, correspondence);
+
+        verify(pdfServiceClient).generateFromHtml(any(), any());
+        verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:00.pdf"), eq(CorrespondenceType.Email.name()));
+        verify(ccdService).updateCaseWithoutRetry(any(), any(), any(), eq("Notification sent"), eq("Notification sent via Gov Notify"), any());
+    }
+
+    @Test
     public void mergeLetterCorrespondenceIntoCcd() {
         byte[] bytes = "String".getBytes();
         Long caseId = Long.valueOf(caseData.getCcdCaseId());

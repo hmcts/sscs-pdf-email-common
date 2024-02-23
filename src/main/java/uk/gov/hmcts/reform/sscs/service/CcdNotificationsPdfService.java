@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -77,6 +78,51 @@ public class CcdNotificationsPdfService {
                 idamTokens, "Notification sent via Gov Notify");
 
         return caseDetails.getData();
+    }
+
+    /**
+     * This method generates PDF using HTML, stores in doc store and updates SSCS case data retrieved from DB with correspondence
+     *
+     * @param caseId - CCD case id
+     * @param correspondence - Correspondence which needs to be added to the case data
+     */
+    public void mergeCorrespondenceIntoCcdV2(Long caseId, Correspondence correspondence) {
+        Map<String, Object> placeholders = new HashMap<>();
+        placeholders.put("body", correspondence.getValue().getBody());
+        placeholders.put("subject", correspondence.getValue().getSubject());
+        placeholders.put("sentOn", correspondence.getValue().getSentOn());
+        placeholders.put("from", correspondence.getValue().getFrom());
+        placeholders.put("to", correspondence.getValue().getTo());
+
+        byte[] template;
+        try {
+            template = getSentEmailTemplate();
+        } catch (IOException e) {
+            throw new PdfGenerationException("Error getting template", e);
+        }
+
+        byte[] pdf = pdfServiceClient.generateFromHtml(template, placeholders);
+        String filename = String.format("%s %s.pdf", correspondence.getValue().getEventType(), correspondence.getValue().getSentOn());
+        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, filename, correspondence.getValue().getCorrespondenceType().name());
+        final List<Correspondence> correspondences = pdfDocuments.stream().map(doc ->
+                correspondence.toBuilder().value(correspondence.getValue().toBuilder()
+                        .documentLink(doc.getValue().getDocumentLink())
+                        .build()).build()
+        ).toList();
+
+        IdamTokens idamTokens = idamService.getIdamTokens();
+        final SscsCaseDetails sscsCaseDetails = ccdService.getByCaseId(caseId, idamTokens);
+        final SscsCaseData sscsCaseData = sscsCaseDetails.getData();
+
+        List<Correspondence> existingCorrespondence = sscsCaseData.getCorrespondence() == null ? new ArrayList<>() : sscsCaseData.getCorrespondence();
+        List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
+        allCorrespondence.addAll(correspondences);
+        allCorrespondence.sort(Comparator.reverseOrder());
+        sscsCaseData.setCorrespondence(allCorrespondence);
+
+        updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(),
+                idamTokens, "Notification sent via Gov Notify");
+
     }
 
     public SscsCaseData mergeLetterCorrespondenceIntoCcd(byte[] pdf, Long ccdCaseId, Correspondence correspondence) {
