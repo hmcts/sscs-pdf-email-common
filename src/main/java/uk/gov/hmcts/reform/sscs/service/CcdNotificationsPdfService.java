@@ -120,9 +120,7 @@ public class CcdNotificationsPdfService {
         allCorrespondence.sort(Comparator.reverseOrder());
         sscsCaseData.setCorrespondence(allCorrespondence);
 
-        updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(),
-                idamTokens, "Notification sent via Gov Notify");
-
+        ccdService.updateCaseV2(caseId, EventType.NOTIFICATION_SENT.getCcdType(), "Notification sent", "Notification sent via Gov Notify", idamTokens, caseDataConsumer -> sscsCaseData.setCorrespondence(correspondences));
     }
 
     public SscsCaseData mergeLetterCorrespondenceIntoCcd(byte[] pdf, Long ccdCaseId, Correspondence correspondence) {
