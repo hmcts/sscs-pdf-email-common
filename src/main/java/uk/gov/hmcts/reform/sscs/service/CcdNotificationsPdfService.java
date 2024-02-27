@@ -14,10 +14,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
 import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
+import uk.gov.hmcts.reform.sscs.ccd.client.CcdClient;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.exception.CcdException;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
+import uk.gov.hmcts.reform.sscs.ccd.service.SscsCcdConvertService;
 import uk.gov.hmcts.reform.sscs.docmosis.domain.Pdf;
 import uk.gov.hmcts.reform.sscs.exception.PdfGenerationException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
@@ -39,6 +42,12 @@ public class CcdNotificationsPdfService {
 
     @Autowired
     private IdamService idamService;
+
+    @Autowired
+    private CcdClient  ccdClient;
+
+    @Autowired
+    private SscsCcdConvertService sscsCcdConvertService;
 
     private static final String DEFAULT_SENDER_TYPE = "Gov Notify";
 
@@ -110,17 +119,8 @@ public class CcdNotificationsPdfService {
                         .build()).build()
         ).toList();
 
-        IdamTokens idamTokens = idamService.getIdamTokens();
-        final SscsCaseDetails sscsCaseDetails = ccdService.getByCaseId(caseId, idamTokens);
-        final SscsCaseData sscsCaseData = sscsCaseDetails.getData();
-
-        List<Correspondence> existingCorrespondence = sscsCaseData.getCorrespondence() == null ? new ArrayList<>() : sscsCaseData.getCorrespondence();
-        List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
-        allCorrespondence.addAll(correspondences);
-        allCorrespondence.sort(Comparator.reverseOrder());
-        sscsCaseData.setCorrespondence(allCorrespondence);
-
-        ccdService.updateCaseV2(caseId, EventType.NOTIFICATION_SENT.getCcdType(), "Notification sent", "Notification sent via Gov Notify", idamTokens, caseDataConsumer -> sscsCaseData.setCorrespondence(correspondences));
+        var idamTokens = idamService.getIdamTokens();
+        ccdService.updateCaseV2(caseId, EventType.NOTIFICATION_SENT.getCcdType(), "Notification sent", "Notification sent via Gov Notify", idamTokens, caseDataConsumer -> retrieveAndUpdateCaseDateWithCorrespondence(caseId, idamTokens, correspondences));
     }
 
     public SscsCaseData mergeLetterCorrespondenceIntoCcd(byte[] pdf, Long ccdCaseId, Correspondence correspondence) {
@@ -251,4 +251,13 @@ public class CcdNotificationsPdfService {
         return IOUtils.toByteArray(in);
     }
 
+    private void retrieveAndUpdateCaseDateWithCorrespondence(Long caseId, IdamTokens idamTokens, List<Correspondence> correspondences) {
+        StartEventResponse startEventResponse = ccdClient.startEvent(idamTokens, caseId, EventType.NOTIFICATION_SENT.getCcdType());
+        var caseData = sscsCcdConvertService.getCaseData(startEventResponse.getCaseDetails().getData());
+        List<Correspondence> existingCorrespondence = caseData.getCorrespondence() == null ? new ArrayList<>() : caseData.getCorrespondence();
+        List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
+        allCorrespondence.addAll(correspondences);
+        allCorrespondence.sort(Comparator.reverseOrder());
+        caseData.setCorrespondence(allCorrespondence);
+    }
 }
