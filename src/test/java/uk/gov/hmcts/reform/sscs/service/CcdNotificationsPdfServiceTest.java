@@ -1,19 +1,5 @@
 package uk.gov.hmcts.reform.sscs.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.openMocks;
-import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseData;
-import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseDataMap;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Consumer;
-
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Before;
@@ -23,17 +9,26 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
-import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
 import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
-import uk.gov.hmcts.reform.sscs.ccd.client.CcdClient;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.exception.CcdException;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
-import uk.gov.hmcts.reform.sscs.ccd.service.SscsCcdConvertService;
 import uk.gov.hmcts.reform.sscs.docmosis.domain.Pdf;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.LetterType;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Consumer;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.openMocks;
+import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseData;
 
 @RunWith(JUnitParamsRunner.class)
 public class CcdNotificationsPdfServiceTest {
@@ -53,12 +48,6 @@ public class CcdNotificationsPdfServiceTest {
     @Mock
     IdamService idamService;
 
-    @Mock
-    private CcdClient ccdClient;
-
-    @Mock
-    private SscsCcdConvertService sscsCcdConvertService;
-
     private SscsCaseData caseData = buildCaseData().toBuilder().ccdCaseId("123").build();
 
     private List<SscsDocument> sscsDocuments;
@@ -66,21 +55,17 @@ public class CcdNotificationsPdfServiceTest {
     @Captor
     private ArgumentCaptor<SscsCaseData> caseDataCaptor;
 
-    @Captor
-    private ArgumentCaptor<Consumer<SscsCaseData>> messageConsumerCaptor;
-
-
     @Before
     public void setup() {
         openMocks(this);
         sscsDocuments = new ArrayList<>();
         sscsDocuments.add(SscsDocument.builder().value(SscsDocumentDetails.builder()
-                .documentFileName("Test.jpg")
-                .documentLink(DocumentLink.builder()
-                        .documentUrl("aUrl")
-                        .documentBinaryUrl("aUrl/binary")
+                        .documentFileName("Test.jpg")
+                        .documentLink(DocumentLink.builder()
+                                .documentUrl("aUrl")
+                                .documentBinaryUrl("aUrl/binary")
+                                .build())
                         .build())
-                .build())
                 .build());
 
         when(pdfStoreService.store(any(), any(), eq("dl6"))).thenReturn(sscsDocuments);
@@ -123,25 +108,34 @@ public class CcdNotificationsPdfServiceTest {
                         .correspondenceType(CorrespondenceType.Email)
                         .build()).build();
 
-        CaseDetails caseDetails = CaseDetails.builder().id(1L).data(buildCaseDataMap(buildCaseData().toBuilder().build())).build();
-        var startEventResponse = StartEventResponse.builder().caseDetails(caseDetails).build();
+        service.mergeCorrespondenceIntoCcdV2(caseId, correspondence);
 
-        when(ccdClient.startEvent(any(),eq(caseId), eq(EventType.NOTIFICATION_SENT.getCcdType()))).thenReturn(startEventResponse);
+        verify(pdfServiceClient).generateFromHtml(any(), any());
+        verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:00.pdf"), eq(CorrespondenceType.Email.name()));
+        verify(ccdService).updateCaseV2(eq(caseId), eq(EventType.NOTIFICATION_SENT.getCcdType()), eq("Notification sent"), eq("Notification sent via Gov Notify"), any(), any(Consumer.class));
+    }
 
-        var sscsCaseDataUpdatedWithCorrespondence = SscsCaseData.builder().correspondence(List.of(correspondence)).build();
-        when(sscsCcdConvertService.getCaseData(startEventResponse.getCaseDetails().getData())).thenReturn(sscsCaseDataUpdatedWithCorrespondence);
+    @Test
+    public void shouldNotThrowExceptionWhenCaseUpdateFailsForMergeCorrespondenceIntoCcdV2() {
+        Long caseId = Long.valueOf(caseData.getCcdCaseId());
+        Correspondence correspondence = Correspondence.builder().value(
+                CorrespondenceDetails.builder()
+                        .sentOn("22 Jan 2021 11:00")
+                        .from("from")
+                        .to("to")
+                        .body("the body")
+                        .subject("a subject")
+                        .eventType("event")
+                        .correspondenceType(CorrespondenceType.Email)
+                        .build()).build();
+
+        doThrow(new CcdException("some error when updating case")).when(ccdService).updateCaseV2(eq(caseId), eq(EventType.NOTIFICATION_SENT.getCcdType()), eq("Notification sent"), eq("Notification sent via Gov Notify"), any(), any(Consumer.class));
 
         service.mergeCorrespondenceIntoCcdV2(caseId, correspondence);
 
         verify(pdfServiceClient).generateFromHtml(any(), any());
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:00.pdf"), eq(CorrespondenceType.Email.name()));
-        verify(ccdService).updateCaseV2(eq(caseId), eq(EventType.NOTIFICATION_SENT.getCcdType()), eq("Notification sent"), eq("Notification sent via Gov Notify"), any(), messageConsumerCaptor.capture());
-
-        Consumer<SscsCaseData> messageConsumer = messageConsumerCaptor.getValue();
-        messageConsumer.accept(caseData);
-
-        verify(ccdClient).startEvent(any(),eq(caseId), eq(EventType.NOTIFICATION_SENT.getCcdType()));
-        verify(sscsCcdConvertService).getCaseData(startEventResponse.getCaseDetails().getData());
+        verify(ccdService).updateCaseV2(eq(caseId), eq(EventType.NOTIFICATION_SENT.getCcdType()), eq("Notification sent"), eq("Notification sent via Gov Notify"), any(), any(Consumer.class));
     }
 
     @Test

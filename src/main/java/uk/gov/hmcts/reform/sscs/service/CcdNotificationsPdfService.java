@@ -1,31 +1,29 @@
 package uk.gov.hmcts.reform.sscs.service;
 
-import static uk.gov.hmcts.reform.sscs.model.LetterType.*;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.exception.CcdException;
+import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
+import uk.gov.hmcts.reform.sscs.docmosis.domain.Pdf;
+import uk.gov.hmcts.reform.sscs.exception.PdfGenerationException;
+import uk.gov.hmcts.reform.sscs.idam.IdamService;
+import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
+import uk.gov.hmcts.reform.sscs.model.LetterType;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
-import org.apache.pdfbox.multipdf.PDFMergerUtility;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
-import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
-import uk.gov.hmcts.reform.sscs.ccd.client.CcdClient;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.ccd.exception.CcdException;
-import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
-import uk.gov.hmcts.reform.sscs.ccd.service.SscsCcdConvertService;
-import uk.gov.hmcts.reform.sscs.docmosis.domain.Pdf;
-import uk.gov.hmcts.reform.sscs.exception.PdfGenerationException;
-import uk.gov.hmcts.reform.sscs.idam.IdamService;
-import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
-import uk.gov.hmcts.reform.sscs.model.LetterType;
+import static uk.gov.hmcts.reform.sscs.model.LetterType.*;
 
 @Service
 @Slf4j
@@ -42,12 +40,6 @@ public class CcdNotificationsPdfService {
 
     @Autowired
     private IdamService idamService;
-
-    @Autowired
-    private CcdClient  ccdClient;
-
-    @Autowired
-    private SscsCcdConvertService sscsCcdConvertService;
 
     private static final String DEFAULT_SENDER_TYPE = "Gov Notify";
 
@@ -119,8 +111,20 @@ public class CcdNotificationsPdfService {
                         .build()).build()
         ).toList();
 
-        var idamTokens = idamService.getIdamTokens();
-        ccdService.updateCaseV2(caseId, EventType.NOTIFICATION_SENT.getCcdType(), "Notification sent", "Notification sent via Gov Notify", idamTokens, caseDataConsumer -> retrieveAndUpdateCaseDateWithCorrespondence(caseId, idamTokens, correspondences));
+        Consumer<SscsCaseData> caseDataConsumer = caseData -> {
+            List<Correspondence> existingCorrespondence = caseData.getCorrespondence() == null ? new ArrayList<>() : caseData.getCorrespondence();
+            List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
+            allCorrespondence.addAll(correspondences);
+            allCorrespondence.sort(Comparator.reverseOrder());
+            caseData.setCorrespondence(allCorrespondence);
+        };
+
+        try {
+            ccdService.updateCaseV2(caseId, EventType.NOTIFICATION_SENT.getCcdType(), "Notification sent", "Notification sent via Gov Notify", idamService.getIdamTokens(), caseDataConsumer);
+        } catch (CcdException ccdEx) {
+            log.error("Failed to update ccd case using v2 but carrying on [" + caseId + "] ["
+                    + caseId + "] with event [" + EventType.NOTIFICATION_SENT.getCcdType() + "]", ccdEx);
+        }
     }
 
     public SscsCaseData mergeLetterCorrespondenceIntoCcd(byte[] pdf, Long ccdCaseId, Correspondence correspondence) {
@@ -249,15 +253,5 @@ public class CcdNotificationsPdfService {
     private byte[] getSentEmailTemplate() throws IOException {
         InputStream in = getClass().getResourceAsStream("/templates/sent_notification.html");
         return IOUtils.toByteArray(in);
-    }
-
-    private void retrieveAndUpdateCaseDateWithCorrespondence(Long caseId, IdamTokens idamTokens, List<Correspondence> correspondences) {
-        StartEventResponse startEventResponse = ccdClient.startEvent(idamTokens, caseId, EventType.NOTIFICATION_SENT.getCcdType());
-        var caseData = sscsCcdConvertService.getCaseData(startEventResponse.getCaseDetails().getData());
-        List<Correspondence> existingCorrespondence = caseData.getCorrespondence() == null ? new ArrayList<>() : caseData.getCorrespondence();
-        List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
-        allCorrespondence.addAll(correspondences);
-        allCorrespondence.sort(Comparator.reverseOrder());
-        caseData.setCorrespondence(allCorrespondence);
     }
 }
