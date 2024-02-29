@@ -27,6 +27,7 @@ import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.exception.CcdException;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
+import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
 import uk.gov.hmcts.reform.sscs.docmosis.domain.Pdf;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
@@ -43,6 +44,9 @@ public class CcdNotificationsPdfServiceTest {
 
     @Mock
     CcdService ccdService;
+    
+    @Mock
+    UpdateCcdCaseService updateCcdCaseService;
 
     @Mock
     PDFServiceClient pdfServiceClient;
@@ -71,7 +75,7 @@ public class CcdNotificationsPdfServiceTest {
 
         when(pdfStoreService.store(any(), any(), eq("dl6"))).thenReturn(sscsDocuments);
         when(idamService.getIdamTokens()).thenReturn(IdamTokens.builder().build());
-        when(ccdService.updateCaseWithoutRetry(any(), any(), any(), any(), any(), any())).thenReturn(SscsCaseDetails.builder().data(caseData).build());
+        when(updateCcdCaseService.updateCaseWithoutRetry(any(), any(), any(), any(), any(), any())).thenReturn(SscsCaseDetails.builder().data(caseData).build());
         when(pdfServiceClient.generateFromHtml(any(), any())).thenReturn("bytes".getBytes());
     }
 
@@ -92,7 +96,7 @@ public class CcdNotificationsPdfServiceTest {
         service.mergeCorrespondenceIntoCcd(caseData, correspondence);
         verify(pdfServiceClient).generateFromHtml(any(), any());
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:00.pdf"), eq(CorrespondenceType.Email.name()));
-        verify(ccdService).updateCaseWithoutRetry(any(), any(), any(), eq("Notification sent"), eq("Notification sent via Gov Notify"), any());
+        verify(updateCcdCaseService).updateCaseWithoutRetry(any(), any(), any(), eq("Notification sent"), eq("Notification sent via Gov Notify"), any());
     }
 
     @Test
@@ -113,7 +117,7 @@ public class CcdNotificationsPdfServiceTest {
         when(ccdService.getByCaseId(eq(caseId), eq(IdamTokens.builder().build()))).thenReturn(SscsCaseDetails.builder().data(caseData).build());
         service.mergeLetterCorrespondenceIntoCcd(bytes, caseId, correspondence);
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:00.pdf"), eq(CorrespondenceType.Email.name()));
-        verify(ccdService).updateCaseWithoutRetry(any(), any(), any(), eq("Notification sent"), eq("Notification sent via Gov Notify"), any());
+        verify(updateCcdCaseService).updateCaseWithoutRetry(any(), any(), any(), eq("Notification sent"), eq("Notification sent via Gov Notify"), any());
     }
 
     @Test
@@ -133,7 +137,7 @@ public class CcdNotificationsPdfServiceTest {
 
         service.mergeLetterCorrespondenceIntoCcdV2(bytes, caseId, correspondence);
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:00.pdf"), eq(CorrespondenceType.Email.name()));
-        verify(ccdService).updateCaseV2(
+        verify(updateCcdCaseService).updateCaseV2(
                 eq(caseId), eq(EventType.NOTIFICATION_SENT.getCcdType()), eq("Notification sent"), eq("Notification sent via Gov Notify"), any(), any(Consumer.class));
     }
 
@@ -152,11 +156,11 @@ public class CcdNotificationsPdfServiceTest {
                         .build()).build();
 
         doThrow(new CcdException("some error when updating case"))
-                .when(ccdService).updateCaseV2(eq(caseId), eq(EventType.NOTIFICATION_SENT.getCcdType()), eq("Notification sent"), eq("Notification sent via Gov Notify"), any(), any(Consumer.class));
+                .when(updateCcdCaseService).updateCaseV2(eq(caseId), eq(EventType.NOTIFICATION_SENT.getCcdType()), eq("Notification sent"), eq("Notification sent via Gov Notify"), any(), any(Consumer.class));
 
         service.mergeLetterCorrespondenceIntoCcdV2(bytes, caseId, correspondence);
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:00.pdf"), eq(CorrespondenceType.Email.name()));
-        verify(ccdService).updateCaseV2(
+        verify(updateCcdCaseService).updateCaseV2(
                 eq(caseId), eq(EventType.NOTIFICATION_SENT.getCcdType()), eq("Notification sent"), eq("Notification sent via Gov Notify"), any(), any(Consumer.class));
     }
 
@@ -184,7 +188,7 @@ public class CcdNotificationsPdfServiceTest {
         when(ccdService.getByCaseId(eq(caseId), eq(IdamTokens.builder().build()))).thenReturn(SscsCaseDetails.builder().data(caseData).build());
         service.mergeReasonableAdjustmentsCorrespondenceIntoCcd(pdfs, caseId, correspondence, letterType);
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:33.pdf"), eq(CorrespondenceType.Letter.name()));
-        verify(ccdService).updateCaseWithoutRetry(caseDataCaptor.capture(), any(), any(), eq("Notification sent"), eq("Stopped for reasonable adjustment to be sent"), any());
+        verify(updateCcdCaseService).updateCaseWithoutRetry(caseDataCaptor.capture(), any(), any(), eq("Notification sent"), eq("Stopped for reasonable adjustment to be sent"), any());
 
         Correspondence result = findLettersToCaptureByParty(caseDataCaptor.getValue().getReasonableAdjustmentsLetters(), letterType).get(0);
         assertEquals(sscsDocuments.get(0).getValue().getDocumentLink(), result.getValue().getDocumentLink());
@@ -214,7 +218,7 @@ public class CcdNotificationsPdfServiceTest {
         when(pdfStoreService.store(any(), any(), eq(CorrespondenceType.Letter.name()))).thenReturn(sscsDocuments);
         service.mergeReasonableAdjustmentsCorrespondenceIntoCcdV2(pdfs, caseId, correspondence, letterType);
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:33.pdf"), eq(CorrespondenceType.Letter.name()));
-        verify(ccdService).updateCaseV2(
+        verify(updateCcdCaseService).updateCaseV2(
                 eq(caseId),
                 eq(EventType.STOP_BULK_PRINT_FOR_REASONABLE_ADJUSTMENT.getCcdType()),
                 eq("Stop bulk print"),
@@ -251,7 +255,7 @@ public class CcdNotificationsPdfServiceTest {
 
         service.mergeReasonableAdjustmentsCorrespondenceIntoCcd(pdfs, caseId, correspondence, LetterType.APPELLANT);
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:33.pdf"), eq(CorrespondenceType.Letter.name()));
-        verify(ccdService).updateCaseWithoutRetry(caseDataCaptor.capture(), any(), any(), eq("Notification sent"), eq("Stopped for reasonable adjustment to be sent"), any());
+        verify(updateCcdCaseService).updateCaseWithoutRetry(caseDataCaptor.capture(), any(), any(), eq("Notification sent"), eq("Stopped for reasonable adjustment to be sent"), any());
 
         assertEquals(sscsDocuments.get(0).getValue().getDocumentLink(), caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellant().get(0).getValue().getDocumentLink());
         assertEquals(ReasonableAdjustmentStatus.REQUIRED, caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellant().get(0).getValue().getReasonableAdjustmentStatus());
@@ -280,7 +284,7 @@ public class CcdNotificationsPdfServiceTest {
         when(ccdService.getByCaseId(eq(caseId), eq(IdamTokens.builder().build()))).thenReturn(SscsCaseDetails.builder().data(caseData).build());
         service.mergeReasonableAdjustmentsCorrespondenceIntoCcd(bytes, caseId, correspondence, letterType);
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:33.pdf"), eq(CorrespondenceType.Letter.name()));
-        verify(ccdService).updateCaseWithoutRetry(caseDataCaptor.capture(), any(), any(), eq("Notification sent"), eq("Stopped for reasonable adjustment to be sent"), any());
+        verify(updateCcdCaseService).updateCaseWithoutRetry(caseDataCaptor.capture(), any(), any(), eq("Notification sent"), eq("Stopped for reasonable adjustment to be sent"), any());
 
         Correspondence result = findLettersToCaptureByParty(caseDataCaptor.getValue().getReasonableAdjustmentsLetters(), letterType).get(0);
         assertEquals(sscsDocuments.get(0).getValue().getDocumentLink(), result.getValue().getDocumentLink());
@@ -308,7 +312,7 @@ public class CcdNotificationsPdfServiceTest {
         when(pdfStoreService.store(any(), any(), eq(CorrespondenceType.Letter.name()))).thenReturn(sscsDocuments);
         service.mergeReasonableAdjustmentsCorrespondenceIntoCcdV2(bytes, caseId, correspondence, letterType);
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:33.pdf"), eq(CorrespondenceType.Letter.name()));
-        verify(ccdService).updateCaseV2(
+        verify(updateCcdCaseService).updateCaseV2(
                 eq(caseId),
                 eq(EventType.STOP_BULK_PRINT_FOR_REASONABLE_ADJUSTMENT.getCcdType()),
                 eq("Stop bulk print"),
@@ -335,7 +339,7 @@ public class CcdNotificationsPdfServiceTest {
                         .reasonableAdjustmentStatus(ReasonableAdjustmentStatus.REQUIRED)
                         .build()).build();
 
-        doThrow(new CcdException("some error when updating case")).when(ccdService).updateCaseV2(
+        doThrow(new CcdException("some error when updating case")).when(updateCcdCaseService).updateCaseV2(
                 eq(caseId),
                 eq(EventType.STOP_BULK_PRINT_FOR_REASONABLE_ADJUSTMENT.getCcdType()),
                 eq("Stop bulk print"),
@@ -347,7 +351,7 @@ public class CcdNotificationsPdfServiceTest {
         when(pdfStoreService.store(any(), any(), eq(CorrespondenceType.Letter.name()))).thenReturn(sscsDocuments);
         service.mergeReasonableAdjustmentsCorrespondenceIntoCcdV2(bytes, caseId, correspondence, letterType);
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:33.pdf"), eq(CorrespondenceType.Letter.name()));
-        verify(ccdService).updateCaseV2(
+        verify(updateCcdCaseService).updateCaseV2(
                 eq(caseId),
                 eq(EventType.STOP_BULK_PRINT_FOR_REASONABLE_ADJUSTMENT.getCcdType()),
                 eq("Stop bulk print"),
@@ -382,7 +386,7 @@ public class CcdNotificationsPdfServiceTest {
 
         service.mergeReasonableAdjustmentsCorrespondenceIntoCcd(bytes, caseId, correspondence, LetterType.APPELLANT);
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:33.pdf"), eq(CorrespondenceType.Letter.name()));
-        verify(ccdService).updateCaseWithoutRetry(caseDataCaptor.capture(), any(), any(), eq("Notification sent"), eq("Stopped for reasonable adjustment to be sent"), any());
+        verify(updateCcdCaseService).updateCaseWithoutRetry(caseDataCaptor.capture(), any(), any(), eq("Notification sent"), eq("Stopped for reasonable adjustment to be sent"), any());
 
         assertEquals(sscsDocuments.get(0).getValue().getDocumentLink(), caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellant().get(0).getValue().getDocumentLink());
         assertEquals(ReasonableAdjustmentStatus.REQUIRED, caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellant().get(0).getValue().getReasonableAdjustmentStatus());

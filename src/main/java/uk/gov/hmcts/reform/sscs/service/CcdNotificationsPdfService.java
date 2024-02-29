@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.exception.CcdException;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
+import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
 import uk.gov.hmcts.reform.sscs.docmosis.domain.Pdf;
 import uk.gov.hmcts.reform.sscs.exception.PdfGenerationException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
@@ -37,6 +38,9 @@ public class CcdNotificationsPdfService {
 
     @Autowired
     private CcdService ccdService;
+
+    @Autowired
+    private UpdateCcdCaseService updateCcdCaseService;
 
     @Autowired
     private IdamService idamService;
@@ -116,7 +120,7 @@ public class CcdNotificationsPdfService {
 
         String description = String.format("Notification sent via %s", senderType);
         try {
-            ccdService.updateCaseV2(ccdCaseId,
+            updateCcdCaseService.updateCaseV2(ccdCaseId,
                     EventType.NOTIFICATION_SENT.getCcdType(),
                     "Notification sent",
                     description,
@@ -205,7 +209,7 @@ public class CcdNotificationsPdfService {
 
         log.info("Creating a reasonable adjustment for {}", ccdCaseId);
         try {
-            ccdService.updateCaseV2(
+            updateCcdCaseService.updateCaseV2(
                     ccdCaseId,
                     EventType.STOP_BULK_PRINT_FOR_REASONABLE_ADJUSTMENT.getCcdType(),
                     "Stop bulk print",
@@ -259,7 +263,7 @@ public class CcdNotificationsPdfService {
 
     private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens, String description) {
         try {
-            return ccdService.updateCaseWithoutRetry(caseData, caseId, eventId, "Notification sent", description, idamTokens);
+            return updateCcdCaseService.updateCaseWithoutRetry(caseData, caseId, eventId, "Notification sent", description, idamTokens);
         } catch (CcdException ccdEx) {
             log.error("Failed to update ccd case but carrying on [" + caseId + "] ["
                     + caseData.getCaseReference() + "] with event [" + eventId + "]", ccdEx);
