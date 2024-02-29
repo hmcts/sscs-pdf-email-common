@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.exception.CcdException;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
+import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
 import uk.gov.hmcts.reform.sscs.docmosis.domain.Pdf;
 import uk.gov.hmcts.reform.sscs.exception.PdfGenerationException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
@@ -38,6 +39,9 @@ public class CcdNotificationsPdfService {
 
     @Autowired
     private CcdService ccdService;
+
+    @Autowired
+    private UpdateCcdCaseService updateCcdCaseService;
 
     @Autowired
     private IdamService idamService;
@@ -76,7 +80,7 @@ public class CcdNotificationsPdfService {
         };
 
         try {
-            ccdService.updateCaseV2(caseId, EventType.NOTIFICATION_SENT.getCcdType(), "Notification sent", "Notification sent via Gov Notify", idamService.getIdamTokens(), caseDataConsumer);
+            updateCcdCaseService.updateCaseV2(caseId, EventType.NOTIFICATION_SENT.getCcdType(), "Notification sent", "Notification sent via Gov Notify", idamService.getIdamTokens(), caseDataConsumer);
         } catch (CcdException ccdEx) {
             log.error("Failed to update ccd case using v2 but carrying on [" + caseId + "] ["
                     + caseId + "] with event [" + EventType.NOTIFICATION_SENT.getCcdType() + "]", ccdEx);
