@@ -61,19 +61,26 @@ public class CcdNotificationsPdfService {
     /**
      * This method generates PDF using HTML, stores in doc store and updates SSCS case data retrieved from DB with correspondence
      *
-     * @param caseId - CCD case id
+     * @param caseId         - CCD case id
      * @param correspondence - Correspondence which needs to be added to the case data
      */
     public void mergeCorrespondenceIntoCcdV2(Long caseId, Correspondence correspondence) {
+        List<Correspondence> updatedCorrespondences = getCorrespondences(correspondence);
+
         Consumer<SscsCaseData> caseDataConsumer = caseData -> {
             List<Correspondence> existingCorrespondence = caseData.getCorrespondence() == null ? new ArrayList<>() : caseData.getCorrespondence();
             List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
-            allCorrespondence.addAll(getCorrespondences(correspondence));
+            allCorrespondence.addAll(updatedCorrespondences);
             allCorrespondence.sort(Comparator.reverseOrder());
             caseData.setCorrespondence(allCorrespondence);
         };
 
-        ccdService.updateCaseV2(caseId, EventType.NOTIFICATION_SENT.getCcdType(), "Notification sent", "Notification sent via Gov Notify", idamService.getIdamTokens(), caseDataConsumer);
+        try {
+            ccdService.updateCaseV2(caseId, EventType.NOTIFICATION_SENT.getCcdType(), "Notification sent", "Notification sent via Gov Notify", idamService.getIdamTokens(), caseDataConsumer);
+        } catch (CcdException ccdEx) {
+            log.error("Failed to update ccd case using v2 but carrying on [" + caseId + "] ["
+                    + caseId + "] with event [" + EventType.NOTIFICATION_SENT.getCcdType() + "]", ccdEx);
+        }
     }
 
 
