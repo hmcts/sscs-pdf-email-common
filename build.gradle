@@ -67,8 +67,9 @@ dependencyCheck {
 
 jacocoTestReport {
     reports {
-        xml.enabled = true
-        csv.enabled = false
+        xml.required.set(true)
+        csv.required.set(false)
+        html.required.set(true)
     }
 }
 
@@ -145,6 +146,8 @@ dependencies {
     implementation group: 'org.projectlombok', name:'lombok', version: '1.18.28'
     annotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.28'
 
+    implementation group: 'com.github.hmcts', name: 'ccd-client', version: '4.9.1'
+
     testImplementation group: 'org.projectlombok', name:'lombok', version: '1.18.28'
     testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.28'
 
@@ -195,6 +198,22 @@ dependencyManagement {
         //CVE-2021-22112
         dependencySet(group: 'org.springframework.security', version: '5.8.3') {
             entry 'spring-security-crypto'
+        }
+
+        //CVE-2021-22044
+        dependencySet(group: 'org.springframework.cloud', version: '3.0.5') {
+            entry 'spring-cloud-starter-openfeign'
+            entry 'spring-cloud-openfeign-core'
+        }
+
+        //CVE-2022-45688
+        dependencySet(group: 'org.json', version: '20230227') {
+            entry 'json'
+        }
+
+        //CVE-2023-3635
+        dependencySet(group: 'com.squareup.okio', version: '3.4.0') {
+            entry 'okio-jvm'
         }
     }
 }
