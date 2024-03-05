@@ -127,6 +127,7 @@ public class CcdNotificationsPdfService {
         };
 
         String description = String.format("Notification sent via %s", senderType);
+        log.info("Updating ccd case using v2 for {} with event {}", ccdCaseId, EventType.NOTIFICATION_SENT.getCcdType());
         try {
             updateCcdCaseService.updateCaseV2(ccdCaseId,
                     EventType.NOTIFICATION_SENT.getCcdType(),
@@ -188,7 +189,7 @@ public class CcdNotificationsPdfService {
             sscsCaseData.updateReasonableAdjustmentsOutstanding();
         };
 
-        log.info("Creating a reasonable adjustment for {}", ccdCaseId);
+        log.info("Creating a reasonable adjustment using v2 for {} with event {}", ccdCaseId, EventType.STOP_BULK_PRINT_FOR_REASONABLE_ADJUSTMENT.getCcdType());
         try {
             updateCcdCaseService.updateCaseV2(
                     ccdCaseId,
