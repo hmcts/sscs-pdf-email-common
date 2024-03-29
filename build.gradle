@@ -167,7 +167,7 @@ dependencyManagement {
     dependencies {
         // resolves: CVE-2020-28052
         dependency group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.70'
-        dependency group: 'commons-io', name: 'commons-io', version: '2.13.0'
+        dependency group: 'commons-io', name: 'commons-io', version: '2.16.0'
 
         dependencySet(group: 'org.springframework.boot', version: '2.7.12') {
             entry 'spring-boot-starter-web'
