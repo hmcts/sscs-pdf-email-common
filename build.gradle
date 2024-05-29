@@ -6,7 +6,7 @@ plugins {
     id 'pmd'
     id 'jacoco'
     id 'io.spring.dependency-management' version '1.1.2'
-    id "org.owasp.dependencycheck" version "8.3.1"
+    id "org.owasp.dependencycheck" version "9.0.6"
 }
 
 jacoco {
@@ -53,7 +53,7 @@ dependencyCheck {
     failBuildOnCVSS = 7.0
     suppressionFile = 'config/owasp/suppressions.xml'
 
-    cveValidForHours = 4
+    nvd.validForHours = 4
 
     analyzers {
         retirejs {
