@@ -71,7 +71,8 @@ public class CcdNotificationsPdfService {
     public void mergeCorrespondenceIntoCcdV2(Long caseId, Correspondence correspondence) {
         List<Correspondence> updatedCorrespondences = getCorrespondences(correspondence);
 
-        Consumer<SscsCaseData> caseDataConsumer = caseData -> {
+        Consumer<SscsCaseDetails> caseDataConsumer = caseDetails -> {
+            SscsCaseData caseData = caseDetails.getData();
             List<Correspondence> existingCorrespondence = caseData.getCorrespondence() == null ? new ArrayList<>() : caseData.getCorrespondence();
             List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
             allCorrespondence.addAll(updatedCorrespondences);
@@ -118,7 +119,8 @@ public class CcdNotificationsPdfService {
     public void mergeLetterCorrespondenceIntoCcdV2(byte[] pdf, Long ccdCaseId, Correspondence correspondence, String senderType) {
         final List<Correspondence> correspondences = getCorrespondences(pdf, correspondence);
 
-        Consumer<SscsCaseData> caseDataConsumer = sscsCaseData -> {
+        Consumer<SscsCaseDetails> caseDataConsumer = sscsCaseDetails -> {
+            SscsCaseData sscsCaseData = sscsCaseDetails.getData();
             List<Correspondence> existingCorrespondence = sscsCaseData.getCorrespondence() == null ? new ArrayList<>() : sscsCaseData.getCorrespondence();
             List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
             allCorrespondence.addAll(correspondences);
@@ -183,7 +185,8 @@ public class CcdNotificationsPdfService {
     public void mergeReasonableAdjustmentsCorrespondenceIntoCcdV2(byte[] letterDocument, Long ccdCaseId, Correspondence correspondence, LetterType letterType) {
         List<Correspondence> correspondenceList = getCorrespondences(letterDocument, correspondence);
 
-        Consumer<SscsCaseData> caseDataConsumer = sscsCaseData -> {
+        Consumer<SscsCaseDetails> caseDataConsumer = sscsCaseDetails -> {
+            SscsCaseData sscsCaseData = sscsCaseDetails.getData();
             sscsCaseData.setReasonableAdjustmentsLetters(
                     buildCorrespondenceByParty(sscsCaseData, correspondenceList, letterType));
             sscsCaseData.updateReasonableAdjustmentsOutstanding();

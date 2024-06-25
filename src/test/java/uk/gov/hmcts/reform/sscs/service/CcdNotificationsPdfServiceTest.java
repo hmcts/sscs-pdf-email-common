@@ -60,7 +60,7 @@ public class CcdNotificationsPdfServiceTest {
     private ArgumentCaptor<SscsCaseData> caseDataCaptor;
 
     @Captor
-    private ArgumentCaptor<Consumer<SscsCaseData>> consumerArgumentCaptor;
+    private ArgumentCaptor<Consumer<SscsCaseDetails>> consumerArgumentCaptor;
 
     @Before
     public void setup() {
@@ -407,17 +407,19 @@ public class CcdNotificationsPdfServiceTest {
     }
 
     private void verifyCaseDataUpdatedWithCorrespondence() {
+        SscsCaseDetails caseDetails = SscsCaseDetails.builder().data(caseData).build();
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:00.pdf"), eq(CorrespondenceType.Email.name()));
         verify(updateCcdCaseService).updateCaseV2(
                 eq(Long.valueOf(caseData.getCcdCaseId())), eq(EventType.NOTIFICATION_SENT.getCcdType()), eq("Notification sent"), eq("Notification sent via Gov Notify"), any(), consumerArgumentCaptor.capture());
 
-        Consumer<SscsCaseData> caseDataConsumer = consumerArgumentCaptor.getValue();
-        caseDataConsumer.accept(caseData);
+        Consumer<SscsCaseDetails> caseDataConsumer = consumerArgumentCaptor.getValue();
+        caseDataConsumer.accept(caseDetails);
         assertEquals(1, caseData.getCorrespondence().size());
         assertEquals(sscsDocuments.get(0).getValue().getDocumentLink(), caseData.getCorrespondence().get(0).getValue().getDocumentLink());
     }
 
     private void verifyCaseDataUpdatedWithReasonableAdjustmentsCorrespondence(LetterType letterType, Long caseId) {
+        SscsCaseDetails caseDetails = SscsCaseDetails.builder().data(caseData).build();
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:33.pdf"), eq(CorrespondenceType.Letter.name()));
         verify(updateCcdCaseService).updateCaseV2(
                 eq(caseId),
@@ -427,8 +429,8 @@ public class CcdNotificationsPdfServiceTest {
                 any(),
                 consumerArgumentCaptor.capture());
 
-        Consumer<SscsCaseData> caseDataConsumer = consumerArgumentCaptor.getValue();
-        caseDataConsumer.accept(caseData);
+        Consumer<SscsCaseDetails> caseDataConsumer = consumerArgumentCaptor.getValue();
+        caseDataConsumer.accept(caseDetails);
         Correspondence result = findLettersToCaptureByParty(caseData.getReasonableAdjustmentsLetters(), letterType).get(0);
         assertEquals(sscsDocuments.get(0).getValue().getDocumentLink(), result.getValue().getDocumentLink());
         assertEquals(ReasonableAdjustmentStatus.REQUIRED, result.getValue().getReasonableAdjustmentStatus());
