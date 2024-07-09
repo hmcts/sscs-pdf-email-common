@@ -1,5 +1,13 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import static uk.gov.hmcts.reform.sscs.model.LetterType.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -16,16 +24,6 @@ import uk.gov.hmcts.reform.sscs.exception.PdfGenerationException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.LetterType;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static uk.gov.hmcts.reform.sscs.model.LetterType.*;
 
 @Service
 @Slf4j
@@ -63,7 +61,7 @@ public class CcdNotificationsPdfService {
     }
 
     /**
-     * This method generates PDF using HTML, stores in doc store and updates SSCS case data retrieved from DB with correspondence
+     * This method generates PDF using HTML, stores in doc store and updates SSCS case data retrieved from DB with correspondence.
      *
      * @param caseId         - CCD case id
      * @param correspondence - Correspondence which needs to be added to the case data
@@ -158,6 +156,7 @@ public class CcdNotificationsPdfService {
 
         return mergeReasonableAdjustmentsCorrespondenceIntoCcd(letterDocument, ccdCaseId, correspondence, letterType);
     }
+
     public SscsCaseData mergeReasonableAdjustmentsCorrespondenceIntoCcd(byte[] letterDocument, Long ccdCaseId, Correspondence correspondence, LetterType letterType) {
         IdamTokens idamTokens = idamService.getIdamTokens();
         final SscsCaseDetails sscsCaseDetails = ccdService.getByCaseId(ccdCaseId, idamTokens);
