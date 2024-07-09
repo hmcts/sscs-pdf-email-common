@@ -39,10 +39,11 @@ repositories {
 // region static code analysis
 
 pmd {
+    Provider<RegularFile> reports = layout.buildDirectory.dir("reports/pmd") as Provider<RegularFile>
     toolVersion = "6.55.0"
     ignoreFailures = true
     sourceSets = [sourceSets.main, sourceSets.test]
-    reportsDir = file("$project.layout.buildDirectory/reports/pmd")
+    reportsDir = reports.get().asFile
     ruleSetFiles = files("config/pmd/ruleset.xml")
 }
 
