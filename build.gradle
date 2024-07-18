@@ -184,7 +184,7 @@ dependencyManagement {
         // CVE-2020-13956
         dependency group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'
 
-        dependencySet(group: 'org.springframework.boot', version: '2.7.18') {
+        dependencySet(group: 'org.springframework.boot', version: '3.3.2') {
             entry 'spring-boot-starter-actuator'
         }
 
