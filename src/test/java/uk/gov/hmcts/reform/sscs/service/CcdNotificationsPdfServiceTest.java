@@ -1,5 +1,16 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.openMocks;
+import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseData;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Consumer;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Before;
@@ -18,18 +29,6 @@ import uk.gov.hmcts.reform.sscs.docmosis.domain.Pdf;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.LetterType;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Consumer;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.openMocks;
-import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseData;
 
 @RunWith(JUnitParamsRunner.class)
 public class CcdNotificationsPdfServiceTest {
@@ -325,7 +324,7 @@ public class CcdNotificationsPdfServiceTest {
 
     @Test
     @Parameters({"APPELLANT", "REPRESENTATIVE", "APPOINTEE", "JOINT_PARTY", "OTHER_PARTY"})
-    public void ShouldMergeReasonableAdjustmentsCorrespondenceIntoCcdV2ForLetterTypeAndRelevantParties(LetterType letterType) {
+    public void shouldMergeReasonableAdjustmentsCorrespondenceIntoCcdV2ForLetterTypeAndRelevantParties(LetterType letterType) {
         byte[] bytes = "String".getBytes();
         Long caseId = Long.valueOf(caseData.getCcdCaseId());
         DocumentLink documentLink = DocumentLink.builder().documentUrl("Http://document").documentFilename("evidence-document.pdf").build();
