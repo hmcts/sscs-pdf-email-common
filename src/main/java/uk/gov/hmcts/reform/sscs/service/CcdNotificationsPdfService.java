@@ -1,5 +1,13 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import static uk.gov.hmcts.reform.sscs.model.LetterType.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -16,15 +24,6 @@ import uk.gov.hmcts.reform.sscs.exception.PdfGenerationException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.LetterType;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-import java.util.function.Consumer;
-
-import static uk.gov.hmcts.reform.sscs.model.LetterType.*;
 
 @Service
 @Slf4j
@@ -62,7 +61,7 @@ public class CcdNotificationsPdfService {
     }
 
     /**
-     * This method generates PDF using HTML, stores in doc store and updates SSCS case data retrieved from DB with correspondence
+     * This method generates PDF using HTML, stores in doc store and updates SSCS case data retrieved from DB with correspondence.
      *
      * @param caseId         - CCD case id
      * @param correspondence - Correspondence which needs to be added to the case data
@@ -70,7 +69,8 @@ public class CcdNotificationsPdfService {
     public void mergeCorrespondenceIntoCcdV2(Long caseId, Correspondence correspondence) {
         List<Correspondence> updatedCorrespondences = getCorrespondences(correspondence);
 
-        Consumer<SscsCaseData> caseDataConsumer = caseData -> {
+        Consumer<SscsCaseDetails> caseDataConsumer = caseDetails -> {
+            SscsCaseData caseData = caseDetails.getData();
             List<Correspondence> existingCorrespondence = caseData.getCorrespondence() == null ? new ArrayList<>() : caseData.getCorrespondence();
             List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
             allCorrespondence.addAll(updatedCorrespondences);
@@ -117,7 +117,8 @@ public class CcdNotificationsPdfService {
     public void mergeLetterCorrespondenceIntoCcdV2(byte[] pdf, Long ccdCaseId, Correspondence correspondence, String senderType) {
         final List<Correspondence> correspondences = getCorrespondences(pdf, correspondence);
 
-        Consumer<SscsCaseData> caseDataConsumer = sscsCaseData -> {
+        Consumer<SscsCaseDetails> caseDataConsumer = sscsCaseDetails -> {
+            SscsCaseData sscsCaseData = sscsCaseDetails.getData();
             List<Correspondence> existingCorrespondence = sscsCaseData.getCorrespondence() == null ? new ArrayList<>() : sscsCaseData.getCorrespondence();
             List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
             allCorrespondence.addAll(correspondences);
@@ -157,6 +158,7 @@ public class CcdNotificationsPdfService {
 
         return mergeReasonableAdjustmentsCorrespondenceIntoCcd(letterDocument, ccdCaseId, correspondence, letterType);
     }
+
     public SscsCaseData mergeReasonableAdjustmentsCorrespondenceIntoCcd(byte[] letterDocument, Long ccdCaseId, Correspondence correspondence, LetterType letterType) {
         IdamTokens idamTokens = idamService.getIdamTokens();
 
@@ -183,7 +185,8 @@ public class CcdNotificationsPdfService {
     public void mergeReasonableAdjustmentsCorrespondenceIntoCcdV2(byte[] letterDocument, Long ccdCaseId, Correspondence correspondence, LetterType letterType) {
         List<Correspondence> correspondenceList = getCorrespondences(letterDocument, correspondence);
 
-        Consumer<SscsCaseData> caseDataConsumer = sscsCaseData -> {
+        Consumer<SscsCaseDetails> caseDataConsumer = sscsCaseDetails -> {
+            SscsCaseData sscsCaseData = sscsCaseDetails.getData();
             sscsCaseData.setReasonableAdjustmentsLetters(
                     buildCorrespondenceByParty(sscsCaseData, correspondenceList, letterType));
             sscsCaseData.updateReasonableAdjustmentsOutstanding();
