@@ -161,15 +161,16 @@ public class CcdNotificationsPdfService {
 
     public SscsCaseData mergeReasonableAdjustmentsCorrespondenceIntoCcd(byte[] letterDocument, Long ccdCaseId, Correspondence correspondence, LetterType letterType) {
         IdamTokens idamTokens = idamService.getIdamTokens();
-        final SscsCaseDetails sscsCaseDetails = ccdService.getByCaseId(ccdCaseId, idamTokens);
-        final SscsCaseData sscsCaseData = sscsCaseDetails.getData();
 
-        sscsCaseData.setReasonableAdjustmentsLetters(buildCorrespondenceByParty(sscsCaseData, getCorrespondences(letterDocument, correspondence), letterType));
-        sscsCaseData.updateReasonableAdjustmentsOutstanding();
+        var correspondences = getCorrespondences(letterDocument, correspondence);
+        Consumer<SscsCaseDetails> caseDetailsConsumer = caseDetails -> {
+            caseDetails.getData().setReasonableAdjustmentsLetters(buildCorrespondenceByParty(caseDetails.getData(), correspondences, letterType));
+            caseDetails.getData().updateReasonableAdjustmentsOutstanding();
+        };
 
         log.info("Creating a reasonable adjustment for {}", ccdCaseId);
 
-        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.STOP_BULK_PRINT_FOR_REASONABLE_ADJUSTMENT.getCcdType(),
+        SscsCaseDetails caseDetails = updateCaseV2InCcd(caseDetailsConsumer, ccdCaseId, EventType.STOP_BULK_PRINT_FOR_REASONABLE_ADJUSTMENT.getCcdType(),
                 idamTokens, "Stopped for reasonable adjustment to be sent");
 
         return caseDetails.getData();
@@ -251,6 +252,16 @@ public class CcdNotificationsPdfService {
         } catch (CcdException ccdEx) {
             log.error("Failed to update ccd case but carrying on [" + caseId + "] ["
                     + caseData.getCaseReference() + "] with event [" + eventId + "]", ccdEx);
+            return SscsCaseDetails.builder().build();
+        }
+    }
+
+    private SscsCaseDetails updateCaseV2InCcd(Consumer<SscsCaseDetails> caseDetailsConsumer, Long caseId, String eventId, IdamTokens idamTokens, String description) {
+        try {
+            return updateCcdCaseService.updateCaseV2WithoutRetry(caseId, eventId, "Notification sent", description, idamTokens, caseDetailsConsumer);
+        } catch (CcdException ccdEx) {
+            log.error("Failed to update ccd case using v2 but carrying on [" + caseId + "] ["
+                    + caseId + "] with event [" + eventId + "]", ccdEx);
             return SscsCaseDetails.builder().build();
         }
     }
