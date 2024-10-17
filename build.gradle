@@ -111,11 +111,17 @@ publishing {
     }
 }
 
+def versions = [
+        jackson      : '2.17.2',
+        junitjupiter : '5.11.0-M2',
+        lombok       : '1.18.34'
+]
+
 dependencies {
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.15.2'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.2'
-    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.15.2'
-    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.15.2'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: versions.jackson
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jackson
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jackson
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: versions.jackson
 
     implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.5.6'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.6'
@@ -123,7 +129,7 @@ dependencies {
     implementation group: 'com.github.hmcts', name: 'java-logging', version: '6.1.6'
     implementation group: 'com.github.hmcts', name: 'cmc-pdf-service-client', version: '7.0.1'
 
-    implementation group: 'com.github.hmcts', name: 'sscs-common', version: '5.12.2', {
+    implementation group: 'com.github.hmcts', name: 'sscs-common', version: 'b097914', {
         exclude group: 'junit', module: 'junit'
     }
 
@@ -155,18 +161,18 @@ dependencies {
 
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.5.0-M2'
 
-    implementation group: 'org.projectlombok', name:'lombok', version: '1.18.34'
-    annotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.34'
+    implementation group: 'org.projectlombok', name:'lombok', version: versions.lombok
+    annotationProcessor group: 'org.projectlombok', name:'lombok', version: versions.lombok
 
     implementation group: 'com.github.hmcts', name: 'ccd-client', version: '4.9.5-SPRING2'
 
-    testImplementation group: 'org.projectlombok', name:'lombok', version: '1.18.34'
-    testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.34'
+    testImplementation group: 'org.projectlombok', name:'lombok', version: versions.lombok
+    testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version: versions.lombok
 
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.11.0-M2'
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.11.0-M2'
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.11.0-M2'
-    testImplementation group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.11.0-M2'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junitjupiter
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junitjupiter
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: versions.junitjupiter
+    testImplementation group: 'org.junit.vintage', name: 'junit-vintage-engine', version: versions.junitjupiter
     testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.11.0-M2'
     testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.11.0-M2'
 
