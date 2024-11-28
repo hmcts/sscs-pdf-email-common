@@ -167,6 +167,19 @@
             </dd>
         </div>
 
+        {% if isIbcCase %}
+        <div>
+            <dt class="cya-question">A yw'r apelydd yn byw yng Nghymru, Lloegr neu'r Alban?</dt>
+            <dd class="cya-answer">{{ welshInMainlandUk }}</dd>
+        </div>
+        {% endif %}
+        {% if isIbcCase and PdfWrapper.sscsCaseData.appeal.appellant.address.inMainlandUk == "No" %}
+        <div>
+            <dt class="cya-question">Porthladd Mynediad</dt>
+            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.appellant.address.ukPortOfEntryList.value.label }}</dd>
+        </div>
+        {% endif %}
+
         <div>
             <dt class="cya-question">Rhif ffôn</dt>
             <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.appellant.contact.mobile | default('Nis
@@ -645,6 +658,19 @@
                 {{ PdfWrapper.sscsCaseData.appeal.appellant.address.postcode }}<br/>
             </dd>
         </div>
+
+        {% if isIbcCase %}
+        <div>
+            <dt class="cya-question">Does the appellant live in England, Wales or Scotland?</dt>
+            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.appellant.address.inMainlandUk }}</dd>
+        </div>
+        {% endif %}
+        {% if isIbcCase and PdfWrapper.sscsCaseData.appeal.appellant.address.inMainlandUk == "No" %}
+        <div>
+            <dt class="cya-question">Port of Entry</dt>
+            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.appellant.address.ukPortOfEntryList.value.label }}</dd>
+        </div>
+        {% endif %}
 
         <div>
             <dt class="cya-question">Phone number</dt>
