@@ -113,7 +113,7 @@ publishing {
 
 def versions = [
         jackson      : '2.17.2',
-        junitjupiter : '5.11.0-M2',
+        junitjupiter : '5.11.4',
         lombok       : '1.18.34'
 ]
 
@@ -173,8 +173,8 @@ dependencies {
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junitjupiter
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: versions.junitjupiter
     testImplementation group: 'org.junit.vintage', name: 'junit-vintage-engine', version: versions.junitjupiter
-    testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.11.0-M2'
-    testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.11.0-M2'
+    testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.11.4'
+    testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.11.4'
 
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.12.0'
     testImplementation group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
