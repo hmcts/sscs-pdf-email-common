@@ -1,3 +1,7 @@
+# :warning: Archived
+
+This repository has been archived as its functionality has been moved to [sscs-tribunals-case-api](https://github.com/hmcts/sscs-tribunals-case-api/pull/4261).
+
 ## sscs-pdf-email-common
 
 This is the common code library for sscs.
