@@ -114,7 +114,7 @@ publishing {
 def versions = [
         jackson      : '2.17.2',
         junitjupiter : '5.11.0-M2',
-        lombok       : '1.18.34'
+        lombok       : '1.18.36'
 ]
 
 dependencies {
