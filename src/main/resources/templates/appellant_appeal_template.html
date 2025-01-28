@@ -102,7 +102,6 @@
     <h1 class="heading-large">Appeal a benefit decision</h1>
     {% endif %}
 
-
     <!-- Benefits name and NINO/IBCA Reference -->
 
     <dl class="govuk-check-your-answers">
@@ -155,12 +154,23 @@
 
                 <!-- This field is optional, only add it if it exists. -->
                 {% if PdfWrapper.sscsCaseData.appeal.appellant.address.line2 is not empty %}
-                {{ PdfWrapper.sscsCaseData.appeal.appellant.address.line2 }}<br/>
+                    {{ PdfWrapper.sscsCaseData.appeal.appellant.address.line2 }}<br/>
                 {% endif %}
 
                 {{ PdfWrapper.sscsCaseData.appeal.appellant.address.town }}<br/>
-                {{ PdfWrapper.sscsCaseData.appeal.appellant.address.county }}<br/>
-                {{ PdfWrapper.sscsCaseData.appeal.appellant.address.postcode }}<br/>
+                {% if isIbcCase and PdfWrapper.sscsCaseData.appeal.appellant.address.inMainlandUk == "No" %}
+                    <!-- This field is optional, only add it if it exists. -->
+                    {% if PdfWrapper.sscsCaseData.appeal.appellant.address.postcode is not empty %}
+                        {{ PdfWrapper.sscsCaseData.appeal.appellant.address.postcode }}<br/>
+                    {% endif %}
+                    {{ PdfWrapper.sscsCaseData.appeal.appellant.address.country }}<br/>
+                {% else %}
+                    <!-- This field is optional, only add it if it exists. -->
+                    {% if PdfWrapper.sscsCaseData.appeal.appellant.address.county is not empty %}
+                        {{ PdfWrapper.sscsCaseData.appeal.appellant.address.county }}<br/>
+                    {% endif %}
+                    {{ PdfWrapper.sscsCaseData.appeal.appellant.address.postcode }}<br/>
+                {% endif %}
             </dd>
         </div>
 
@@ -248,7 +258,7 @@
         <div>
             <dt class="cya-question">Name</dt>
             <dd class="cya-answer">
-                {% if PdfWrapper.repFullName is defined and PdfWrapper.repFullName != "null null null" %}
+                {% if PdfWrapper.repFullName is not empty and PdfWrapper.repFullName != "null null null" %}
                 {{ PdfWrapper.repFullName }}
                 {% else %}
                 Not provided
@@ -267,24 +277,30 @@
 
                 {% if PdfWrapper.sscsCaseData.appeal.rep.address is defined %}
 
-                {{ PdfWrapper.sscsCaseData.appeal.rep.address.line1 }}<br/>
+                    {{ PdfWrapper.sscsCaseData.appeal.rep.address.line1 }}<br/>
 
-                <!-- This field is optional, only add it if it exists. -->
-                {% if PdfWrapper.sscsCaseData.appeal.rep.address.line2 is not empty %}
-                {{ PdfWrapper.sscsCaseData.appeal.rep.address.line2 }}<br/>
-                {% endif %}
+                    <!-- This field is optional, only add it if it exists. -->
+                    {% if PdfWrapper.sscsCaseData.appeal.rep.address.line2 is not empty %}
+                        {{ PdfWrapper.sscsCaseData.appeal.rep.address.line2 }}<br/>
+                    {% endif %}
 
-                {{ PdfWrapper.sscsCaseData.appeal.rep.address.town }}<br/>
+                    {{ PdfWrapper.sscsCaseData.appeal.rep.address.town }}<br/>
 
-                <!-- This field is optional, only add it if it exists. -->
-                {% if PdfWrapper.sscsCaseData.appeal.rep.address.county is not empty %}
-                {{ PdfWrapper.sscsCaseData.appeal.rep.address.county }}<br/>
-                {% endif %}
-
-                {{ PdfWrapper.sscsCaseData.appeal.rep.address.postcode }}<br/>
-
+                    {% if isIbcCase and PdfWrapper.sscsCaseData.appeal.rep.address.inMainlandUk == "No" %}
+                        <!-- This field is optional, only add it if it exists. -->
+                        {% if PdfWrapper.sscsCaseData.appeal.rep.address.postcode is not empty %}
+                            {{ PdfWrapper.sscsCaseData.appeal.rep.address.postcode }}<br/>
+                        {% endif %}
+                        {{ PdfWrapper.sscsCaseData.appeal.rep.address.country }}<br/>
+                    {% else %}
+                        <!-- This field is optional, only add it if it exists. -->
+                        {% if PdfWrapper.sscsCaseData.appeal.rep.address.county is not empty %}
+                            {{ PdfWrapper.sscsCaseData.appeal.rep.address.county }}<br/>
+                        {% endif %}
+                        {{ PdfWrapper.sscsCaseData.appeal.rep.address.postcode }}<br/>
+                    {% endif %}
                 {% else %}
-                Not provided
+                    Not provided
                 {% endif %}
 
             </dd>
@@ -369,7 +385,7 @@
         <div>
             <dt class="cya-question">Dates you're not available</dt>
             <dd class="cya-answer">
-                {% if PdfWrapper.sscsCaseData.appeal.hearingOptions.scheduleHearing == "Yes"  %}
+                {% if PdfWrapper.sscsCaseData.appeal.hearingOptions.scheduleHearing == "Yes" %}
                 {% for date in PdfWrapper.sscsCaseData.appeal.hearingOptions.excludeDates %}
                 {{ date.value.start | date(existingFormat="yyyy-MM-dd", format="dd MMMM yyyy") }}<br/>
                 {% endfor %}
@@ -478,10 +494,10 @@
         <div>
             <dt class="cya-question">Receive text message reminders</dt>
             <dd class="cya-answer">
-                {% if PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription is defined %}
-                {{ PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription.wantSmsNotifications }}
+                {% if PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription is defined and PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription.wantSmsNotifications is not empty %}
+                    {{ PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription.wantSmsNotifications }}
                 {% else %}
-                {{ PdfWrapper.sscsCaseData.subscriptions.appellantSubscription.wantSmsNotifications }}
+                    {{ PdfWrapper.sscsCaseData.subscriptions.appellantSubscription.wantSmsNotifications }}
                 {% endif %}
             </dd>
         </div>
@@ -489,18 +505,18 @@
         <div>
             <dt class="cya-question">Mobile number</dt>
             <dd class="cya-answer">
-                {% if PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription is defined %}
-                {% if PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription.wantSmsNotifications == 'Yes'  %}
-                {{ PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription.mobile }}
+                {% if PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription is defined and PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription.wantSmsNotifications is not empty %}
+                    {% if PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription.wantSmsNotifications == 'Yes'  %}
+                        {{ PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription.mobile }}
+                    {% else %}
+                        Not Applicable
+                    {% endif %}
                 {% else %}
-                Not Applicable
-                {% endif %}
-                {% else %}
-                {% if PdfWrapper.sscsCaseData.subscriptions.appellantSubscription.wantSmsNotifications == 'Yes'  %}
-                {{ PdfWrapper.sscsCaseData.subscriptions.appellantSubscription.mobile }}
-                {% else %}
-                Not Applicable
-                {% endif %}
+                    {% if PdfWrapper.sscsCaseData.subscriptions.appellantSubscription.wantSmsNotifications == 'Yes'  %}
+                        {{ PdfWrapper.sscsCaseData.subscriptions.appellantSubscription.mobile }}
+                    {% else %}
+                        Not Applicable
+                    {% endif %}
                 {% endif %}
             </dd>
         </div>
